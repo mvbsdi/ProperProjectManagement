@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Lifecycle — Team Presentation</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3350;
+    --accent: #4f8ef7;
+    --accent2: #7c5cbf;
+    --green: #2ecc71;
+    --yellow: #f1c40f;
+    --orange: #e67e22;
+    --red: #e74c3c;
+    --text: #e8eaf0;
+    --muted: #8b92b0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* PROGRESS BAR */
+  #progress-bar {
+    height: 3px;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+  #progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width .4s ease;
+  }
+
+  /* SLIDE CONTAINER */
+  #deck {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 48px 64px;
+    opacity: 0;
+    transform: translateX(60px);
+    transition: opacity .35s ease, transform .35s ease;
+    pointer-events: none;
+    text-align: center;
+  }
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: all;
+  }
+  .slide.exit-left {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+
+  /* SLIDE CONTENT STYLES */
+  .slide-tag {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .slide h1 {
+    font-size: clamp(28px, 4vw, 52px);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -.5px;
+    margin-bottom: 20px;
+  }
+  .slide h2 {
+    font-size: clamp(22px, 3vw, 38px);
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 16px;
+  }
+  .slide p.lead {
+    font-size: clamp(14px, 1.6vw, 20px);
+    color: var(--muted);
+    max-width: 700px;
+    line-height: 1.7;
+  }
+  .slide .big-number {
+    font-size: clamp(64px, 10vw, 120px);
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+  .accent { color: var(--accent); }
+  .green { color: var(--green); }
+  .yellow { color: var(--yellow); }
+  .orange { color: var(--orange); }
+  .red { color: var(--red); }
+  .purple { color: #c0a0ff; }
+
+  /* CARD GRIDS */
+  .card-row {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 1000px;
+    margin-top: 24px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 24px;
+    flex: 1;
+    min-width: 180px;
+    max-width: 260px;
+    text-align: left;
+  }
+  .card .card-icon { font-size: 28px; margin-bottom: 10px; }
+  .card h3 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .card p { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+  /* STAGE PILL */
+  .stage-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 4px;
+  }
+  .stage-pill .dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+
+  /* CHECKLIST */
+  .checklist-col {
+    text-align: left;
+    max-width: 640px;
+    width: 100%;
+    margin-top: 24px;
+  }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .check-item:last-child { border-bottom: none; }
+  .check-icon { font-size: 18px; flex-shrink: 0; line-height: 1.4; }
+  .check-item .sub { font-size: 12px; color: var(--muted); display: block; margin-top: 2px; }
+
+  /* RULE CARD */
+  .rule-big {
+    background: var(--surface);
+    border-left: 4px solid var(--red);
+    border-radius: 0 16px 16px 0;
+    padding: 28px 32px;
+    max-width: 700px;
+    text-align: left;
+    margin-top: 24px;
+  }
+  .rule-big .rule-label { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--red); margin-bottom: 10px; }
+  .rule-big h3 { font-size: 22px; font-weight: 800; margin-bottom: 10px; }
+  .rule-big p { font-size: 15px; color: var(--muted); line-height: 1.7; }
+
+  /* RACI ROW */
+  .raci-row-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 700px;
+    width: 100%;
+    margin-top: 20px;
+    text-align: left;
+  }
+  .raci-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+  .raci-badge {
+    font-size: 11px;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 20px;
+    flex-shrink: 0;
+    min-width: 28px;
+    text-align: center;
+  }
+  .R { background: #3a0e0e; color: #f77; }
+  .A { background: #3a2e00; color: #f5d33a; }
+  .C { background: #1a3a6e; color: #7eb8ff; }
+  .I { background: #1a1d27; color: var(--muted); border: 1px solid var(--border); }
+  .raci-role { font-weight: 700; min-width: 140px; }
+  .raci-desc { color: var(--muted); font-size: 13px; }
+
+  /* GATE BLOCK */
+  .gate-block {
+    background: var(--surface2);
+    border: 2px solid var(--yellow);
+    border-radius: 14px;
+    padding: 24px 32px;
+    max-width: 680px;
+    text-align: left;
+    margin-top: 20px;
+  }
+  .gate-block .gate-label { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--yellow); margin-bottom: 10px; }
+  .gate-block p { font-size: 15px; color: var(--text); line-height: 1.7; }
+  .gate-block ul { margin-top: 10px; padding-left: 0; list-style: none; }
+  .gate-block ul li { font-size: 14px; color: var(--muted); padding: 4px 0; display: flex; gap: 8px; align-items: flex-start; }
+  .gate-block ul li::before { content: '🛑'; font-size: 12px; flex-shrink: 0; line-height: 1.6; }
+
+  /* RETRY BANNER */
+  .retry-banner {
+    background: #1a1030;
+    border: 1.5px dashed var(--accent2);
+    border-radius: 12px;
+    padding: 20px 28px;
+    max-width: 680px;
+    text-align: left;
+    margin-top: 20px;
+    font-size: 15px;
+  }
+  .retry-banner .rl { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent2); margin-bottom: 8px; }
+
+  /* TITLE SLIDE SPECIAL */
+  .title-slide { background: radial-gradient(ellipse at 60% 40%, #1a2050 0%, var(--bg) 70%); }
+
+  /* ARCHETYPE ROW */
+  .archetype-row {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+    max-width: 900px;
+    margin-top: 20px;
+  }
+  .arch-card {
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 20px 22px;
+    flex: 1;
+    min-width: 220px;
+    max-width: 280px;
+    text-align: left;
+  }
+  .arch-card h3 { font-size: 16px; font-weight: 800; margin-bottom: 6px; }
+  .arch-card .arch-sub { font-size: 11px; color: var(--muted); margin-bottom: 14px; }
+  .arch-card .arch-row { display: flex; justify-content: space-between; font-size: 12px; padding: 4px 0; border-bottom: 1px solid var(--border); }
+  .arch-card .arch-row:last-child { border-bottom: none; }
+
+  /* METRICS */
+  .metric-row-wrap {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 900px;
+    margin-top: 24px;
+  }
+  .metric-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    text-align: center;
+    flex: 1;
+    min-width: 150px;
+    max-width: 190px;
+  }
+  .metric-box .ml { font-size: 10px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .metric-box .mv { font-size: 22px; font-weight: 800; color: var(--accent); }
+  .metric-box .ms { font-size: 10px; color: var(--muted); margin-top: 4px; }
+
+  /* CONTROLS */
+  #controls {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 32px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+  }
+  #slide-counter { font-size: 12px; color: var(--muted); font-weight: 600; min-width: 80px; }
+  .nav-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 24px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+    font-family: inherit;
+  }
+  .nav-btn:hover:not(:disabled) { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; }
+  #slide-title-bar { font-size: 12px; color: var(--muted); text-align: center; flex: 1; padding: 0 16px; }
+
+  /* KEYBOARD HINT */
+  .key-hint { font-size: 11px; color: var(--border); margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<div id="progress-bar"><div id="progress-fill"></div></div>
+
+<div id="deck">
+
+  <!-- SLIDE 1: TITLE -->
+  <div class="slide title-slide active" data-title="Title">
+    <div class="slide-tag">Internal · Software &amp; Controls · v1.0</div>
+    <h1>How We <span class="accent">Deliver Projects</span><br>Without the Chaos</h1>
+    <p class="lead">A shared playbook for Sales, Project Management, Software, and Controls — so everyone knows what's expected, when it's expected, and who owns it.</p>
+  </div>
+
+  <!-- SLIDE 2: THE PROBLEM -->
+  <div class="slide" data-title="The Problem">
+    <div class="slide-tag">Why this exists</div>
+    <h2>The <span class="red">real</span> problem</h2>
+    <p class="lead" style="margin-bottom:24px">Software and Controls are the last to know — and the first to be blamed when we're late.</p>
+    <div class="card-row">
+      <div class="card">
+        <div class="card-icon">🤝</div>
+        <h3>The deal closes</h3>
+        <p>Sales promises features, timelines, and capabilities. Software hears about it later — sometimes much later.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📄</div>
+        <h3>Documents land last-minute</h3>
+        <p>FSD and HI docs are due and nobody asked Software what was even feasible before signing.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔥</div>
+        <h3>We scramble</h3>
+        <p>No staff planned. No schedule built. We absorb the project and somehow make it work — at our cost.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: THE FIX -->
+  <div class="slide" data-title="The Fix">
+    <div class="slide-tag">The solution</div>
+    <h2>The fix is simple: <span class="accent">gates</span></h2>
+    <p class="lead">A gate is a checkpoint. Work cannot move forward until the gate is cleared. No exceptions. No workarounds.</p>
+    <div class="card-row" style="margin-top:32px">
+      <div class="card" style="border-top:3px solid var(--green)">
+        <div class="card-icon">✅</div>
+        <h3>Before the contract</h3>
+        <p>Software and Controls review every deal. They sign off on feasibility before anyone promises anything.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--accent)">
+        <div class="card-icon">👤</div>
+        <h3>At kickoff</h3>
+        <p>One PM. One TPM. Named. Accountable. No more "we have three PMs" meaning no one is responsible.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--yellow)">
+        <div class="card-icon">📋</div>
+        <h3>Before building</h3>
+        <p>Requirements are written, signed, and approved before a single line of code is written.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: 3 PROJECT TYPES -->
+  <div class="slide" data-title="Project Types">
+    <div class="slide-tag">Know your project</div>
+    <h2>We do <span class="accent">3 types</span> of projects</h2>
+    <div class="archetype-row">
+      <div class="arch-card" style="border-top:3px solid var(--accent)">
+        <h3>🏗 Greenfield</h3>
+        <p class="arch-sub">Brand new system from scratch</p>
+        <div class="arch-row"><span>Complexity</span><span class="red" style="font-weight:700">High</span></div>
+        <div class="arch-row"><span>Lead time needed</span><span class="red" style="font-weight:700">4–8 weeks</span></div>
+        <div class="arch-row"><span>Change risk</span><span class="red" style="font-weight:700">Very High</span></div>
+        <div class="arch-row"><span>Software from</span><span class="accent" style="font-weight:700">Stage 1</span></div>
+      </div>
+      <div class="arch-card" style="border-top:3px solid var(--orange)">
+        <h3>🔁 Recontrol</h3>
+        <p class="arch-sub">Existing system replaced or heavily changed</p>
+        <div class="arch-row"><span>Complexity</span><span class="red" style="font-weight:700">High</span></div>
+        <div class="arch-row"><span>Lead time needed</span><span class="orange" style="font-weight:700">3–6 weeks</span></div>
+        <div class="arch-row"><span>Change risk</span><span class="orange" style="font-weight:700">High</span></div>
+        <div class="arch-row"><span>Software from</span><span class="accent" style="font-weight:700">Stage 1</span></div>
+      </div>
+      <div class="arch-card" style="border-top:3px solid var(--green)">
+        <h3>⬆️ Upgrade</h3>
+        <p class="arch-sub">Incremental update to existing system</p>
+        <div class="arch-row"><span>Complexity</span><span class="green" style="font-weight:700">Low–Med</span></div>
+        <div class="arch-row"><span>Lead time needed</span><span class="green" style="font-weight:700">1–2 weeks</span></div>
+        <div class="arch-row"><span>Change risk</span><span class="yellow" style="font-weight:700">Medium</span></div>
+        <div class="arch-row"><span>Software from</span><span class="accent" style="font-weight:700">Stage 2</span></div>
+      </div>
+    </div>
+    <p style="color:var(--muted);font-size:13px;margin-top:20px">⚠️ Any project can have customizations added on — those always go through a Change Request, no exceptions.</p>
+  </div>
+
+  <!-- SLIDE 5: THE 10 STAGES -->
+  <div class="slide" data-title="The 10 Stages">
+    <div class="slide-tag">The lifecycle</div>
+    <h2>Every project has <span class="accent">10 stages</span></h2>
+    <div style="display:flex;flex-wrap:wrap;justify-content:center;max-width:900px;margin-top:20px;gap:6px">
+      <span class="stage-pill"><span class="dot" style="background:var(--accent)"></span>1. Qualify</span>
+      <span class="stage-pill"><span class="dot" style="background:var(--accent)"></span>2. Shape Solution</span>
+      <span class="stage-pill"><span class="dot" style="background:#c0a0ff)"></span>3. Sign Contract</span>
+      <span class="stage-pill"><span class="dot" style="background:var(--green)"></span>4. Intake / Kickoff</span>
+      <span class="stage-pill"><span class="dot" style="background:var(--green)"></span>5. Requirements</span>
+      <span class="stage-pill"><span class="dot" style="background:var(--green)"></span>6. Design &amp; Plan</span>
+      <span class="stage-pill"><span class="dot" style="background:var(--yellow)"></span>7. Build &amp; Integrate</span>
+      <span class="stage-pill"><span class="dot" style="background:var(--orange)"></span>8. Site Readiness</span>
+      <span class="stage-pill"><span class="dot" style="background:var(--red)"></span>9. Go-Live</span>
+      <span class="stage-pill"><span class="dot" style="background:var(--muted)"></span>10. Closeout</span>
+    </div>
+    <p class="lead" style="margin-top:24px">No stage gets skipped. Each one has a <span class="yellow">clear exit gate</span> — a checklist that must be complete before the next stage starts.</p>
+  </div>
+
+  <!-- SLIDE 6: STAGE 1-2 PRE SOW -->
+  <div class="slide" data-title="Stages 1–2: Pre-SOW">
+    <div class="slide-tag">Stages 1 – 2</div>
+    <h2><span class="accent">Before</span> the contract is signed</h2>
+    <div class="checklist-col">
+      <div class="check-item"><span class="check-icon">🔍</span><div>Sales qualifies the opportunity and assigns it an archetype (Greenfield / Recontrol / Upgrade)<span class="sub">This determines how much lead time Software and Controls need</span></div></div>
+      <div class="check-item"><span class="check-icon">⚡</span><div><strong>Software Lead gives a rough effort estimate within 48 hours</strong><span class="sub">No estimate = no sales resource allocation. This is not optional.</span></div></div>
+      <div class="check-item"><span class="check-icon">⚡</span><div><strong>Controls Lead gives a rough effort estimate within 48 hours</strong><span class="sub">Same rule applies.</span></div></div>
+      <div class="check-item"><span class="check-icon">🤝</span><div>Solution Architect shapes the solution with the customer — Software and Controls are named participants<span class="sub">Not an afterthought. Part of the room.</span></div></div>
+      <div class="check-item"><span class="check-icon">✍️</span><div><strong>Software Lead and Controls Lead sign the Technical Feasibility document</strong><span class="sub">If it's not signed, the SOW doesn't get drafted.</span></div></div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: RECONCILIATION LOOP A -->
+  <div class="slide" data-title="Reconciliation Loop A">
+    <div class="slide-tag">When things don't line up</div>
+    <h2>What happens when <span class="yellow">Sales over-promised?</span></h2>
+    <div class="retry-banner">
+      <div class="rl">↩ Reconciliation Loop A — Feasibility Impasse</div>
+      <p style="color:var(--text);line-height:1.7">If Sales has promised capabilities that aren't feasible with our product, we stop. SA, Software, and Controls define what <em>is</em> feasible. Sales goes back to the customer to realign scope before we write a single requirement.</p>
+    </div>
+    <p class="lead" style="margin-top:24px">This loop exists so we <span class="red">never</span> find out something isn't buildable after a contract is signed.</p>
+  </div>
+
+  <!-- SLIDE 8: STAGE 3 CONTRACT -->
+  <div class="slide" data-title="Stage 3: Contract">
+    <div class="slide-tag">Stage 3</div>
+    <h2>Signing the <span class="accent">contract</span></h2>
+    <p class="lead" style="margin-bottom:20px">The SOW (Statement of Work) is the rulebook for the project. If it's wrong, everything downstream is wrong.</p>
+    <div class="gate-block">
+      <div class="gate-label">🚦 Gate — SOW Internal Sign-off</div>
+      <p>Before anyone signs a contract with the customer, these must be true:</p>
+      <ul>
+        <li>Software Lead has reviewed and signed off on scope language</li>
+        <li>Controls Lead has reviewed and signed off on scope language</li>
+        <li>Assumptions and exclusions are written explicitly in the SOW</li>
+        <li>A change order process is defined in the SOW</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: STAGE 4 INTAKE -->
+  <div class="slide" data-title="Stage 4: Kickoff">
+    <div class="slide-tag">Stage 4 — T₀</div>
+    <h2>Project <span class="green">Kickoff</span></h2>
+    <p class="lead" style="margin-bottom:20px">Within 5 business days of signing, we hold a kickoff meeting with the full team.</p>
+    <div class="checklist-col">
+      <div class="check-item"><span class="check-icon">🛑</span><div><strong style="color:var(--red)">One PM named as owner — full name, no committee</strong><span class="sub">If there are 3 PMs with the same title, nobody is accountable.</span></div></div>
+      <div class="check-item"><span class="check-icon">🛑</span><div><strong style="color:var(--red)">One TPM named as software scope owner — full name</strong><span class="sub">This person owns the FSD, the HI docs, and the software schedule.</span></div></div>
+      <div class="check-item"><span class="check-icon">📁</span><div>Signed SOW goes to every team member<span class="sub">No one builds from memory or verbal briefings.</span></div></div>
+      <div class="check-item"><span class="check-icon">🗓</span><div>Software and Controls capacity formally reserved in the schedule<span class="sub">By name, not "a developer." Unnamed capacity is not capacity.</span></div></div>
+    </div>
+  </div>
+
+  <!-- SLIDE 10: WHO OWNS WHAT -->
+  <div class="slide" data-title="Who Owns What">
+    <div class="slide-tag">Role clarity</div>
+    <h2>Who <span class="accent">owns</span> what</h2>
+    <div class="raci-row-wrap">
+      <div class="raci-row"><span class="raci-badge A">A</span><span class="raci-role">PM</span><span class="raci-desc">Overall delivery, timeline, hardware logistics, escalation</span></div>
+      <div class="raci-row"><span class="raci-badge A">A</span><span class="raci-role">TPM</span><span class="raci-desc">Software requirements, FSD/HI authoring, software schedule, change requests</span></div>
+      <div class="raci-row"><span class="raci-badge R">R</span><span class="raci-role">Solution Architect</span><span class="raci-desc">Technical discovery, on-site config, customer field reality validation</span></div>
+      <div class="raci-row"><span class="raci-badge R">R</span><span class="raci-role">Software Lead</span><span class="raci-desc">Builds, integration tests, customization, configuration delivery</span></div>
+      <div class="raci-row"><span class="raci-badge R">R</span><span class="raci-role">Controls Lead</span><span class="raci-desc">PLC software, low voltage, hardware interfaces</span></div>
+      <div class="raci-row"><span class="raci-badge C">C</span><span class="raci-role">Sales / KAM</span><span class="raci-desc">Customer relationship, commercial decisions, scope conflict resolution</span></div>
+    </div>
+    <p style="color:var(--muted);font-size:12px;margin-top:16px"><span class="yellow">A</span> = single accountable owner &nbsp;·&nbsp; <span class="red">R</span> = does the work &nbsp;·&nbsp; <span class="accent">C</span> = consulted</p>
+  </div>
+
+  <!-- SLIDE 11: STAGE 5 REQUIREMENTS -->
+  <div class="slide" data-title="Stage 5: Requirements">
+    <div class="slide-tag">Stage 5</div>
+    <h2>Writing the <span class="accent">requirements</span></h2>
+    <p class="lead" style="margin-bottom:20px">The FSD (Functional Spec) and HI (Host Interface) documents are the blueprint. Everyone builds from them.</p>
+    <div class="checklist-col">
+      <div class="check-item"><span class="check-icon">✍️</span><div>TPM leads — SA validates — Software and Controls co-author their sections<span class="sub">TPM can't write software requirements alone. They need the people who build it in the room.</span></div></div>
+      <div class="check-item"><span class="check-icon">🔗</span><div>Every requirement traces back to a scope item in the SOW<span class="sub">If it's not in the SOW, it doesn't belong here without a Change Request.</span></div></div>
+      <div class="check-item"><span class="check-icon">🛑</span><div><strong style="color:var(--red)">No build starts until FSD + HI are signed and customer-approved</strong></div></div>
+    </div>
+    <div class="retry-banner" style="margin-top:16px;font-size:13px">
+      <div class="rl">↩ Reconciliation Loop C — Requirements Gap</div>
+      If discovery surfaces scope not in the SOW → Change Request immediately. Not absorbed. Not done as a favour.
+    </div>
+  </div>
+
+  <!-- SLIDE 12: STAGE 6-7 BUILD -->
+  <div class="slide" data-title="Stages 6–7: Build">
+    <div class="slide-tag">Stages 6 – 7</div>
+    <h2>Planning &amp; <span class="yellow">Building</span></h2>
+    <div class="card-row" style="margin-top:20px">
+      <div class="card" style="border-top:3px solid var(--accent)">
+        <div class="card-icon">📐</div>
+        <h3>Design &amp; Plan first</h3>
+        <p>Named staff, sprint plan, integration test strategy. Hardware delivery dates mapped to software milestones. Approved before build starts.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--yellow)">
+        <div class="card-icon">🔨</div>
+        <h3>Build iteratively</h3>
+        <p>Regular software-controls-hardware integration checkpoints. Issues found early are cheap. Issues found on-site are expensive.</p>
+      </div>
+      <div class="card" style="border-top:3px solid var(--red)">
+        <div class="card-icon">🚫</div>
+        <h3>New requests = CR</h3>
+        <p>Any new screen, feature, or integration added during build goes through a formal Change Request. Work doesn't start without approval.</p>
+      </div>
+    </div>
+    <div class="retry-banner" style="margin-top:16px;font-size:13px;max-width:700px">
+      <div class="rl">↩ Reconciliation Loop D — Integration Conflict</div>
+      If software and controls interface behaviors conflict → joint resolution session within 48h. TPM arbitrates. PM assesses schedule impact.
+    </div>
+  </div>
+
+  <!-- SLIDE 13: STAGE 8 SITE READINESS -->
+  <div class="slide" data-title="Stage 8: Site Readiness">
+    <div class="slide-tag">Stage 8</div>
+    <h2><span class="orange">Site Readiness</span> — the travel gate</h2>
+    <p class="lead" style="margin-bottom:20px">Nobody travels to a customer site until this gate is cleared.</p>
+    <div class="gate-block">
+      <div class="gate-label">🚦 Gate — FAT/SAT Checklist</div>
+      <ul>
+        <li>Software Lead signs site readiness checklist</li>
+        <li>Controls Lead signs site readiness checklist</li>
+        <li>All acceptance criteria tested and documented</li>
+        <li>No P1 (critical) defects outstanding</li>
+        <li>Rollback / contingency plan exists</li>
+      </ul>
+    </div>
+    <p style="color:var(--muted);font-size:13px;margin-top:16px">Showing up to site to "figure it out" is not commissioning. It is expensive, embarrassing failure.</p>
+  </div>
+
+  <!-- SLIDE 14: STAGE 9 GO LIVE -->
+  <div class="slide" data-title="Stage 9: Go-Live">
+    <div class="slide-tag">Stage 9</div>
+    <h2><span class="red">Go-Live</span> &amp; Hypercare</h2>
+    <div class="checklist-col">
+      <div class="check-item"><span class="check-icon">✅</span><div>Customer signs off on go-live criteria before cutover<span class="sub">We don't flip the switch and hope. Criteria are agreed in advance.</span></div></div>
+      <div class="check-item"><span class="check-icon">📟</span><div>Software and Controls are on a named hypercare rota<span class="sub">Someone is on call. The customer knows who to call. It's written down.</span></div></div>
+      <div class="check-item"><span class="check-icon">🏷</span><div>Post-launch issues are tagged: warranty vs. billable change<span class="sub">Not everything reported after go-live is our bug to fix for free.</span></div></div>
+    </div>
+  </div>
+
+  <!-- SLIDE 15: STAGE 10 CLOSEOUT -->
+  <div class="slide" data-title="Stage 10: Closeout">
+    <div class="slide-tag">Stage 10</div>
+    <h2>Project <span class="muted">Closeout</span></h2>
+    <p class="lead" style="margin-bottom:24px">How we get better over time. Every project feeds the next one.</p>
+    <div class="card-row">
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <h3>Estimate variance</h3>
+        <p>Did Software and Controls actually take as long as estimated? Logged by archetype. Improves future quoting.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🗣</div>
+        <h3>Lessons learned</h3>
+        <p>What broke in the process? What went well? Short session, honest answers, fed back to this playbook.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔄</div>
+        <h3>Feed pre-SOW</h3>
+        <p>Every real variance makes our Stage 1 estimates more accurate. The process self-corrects.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 16: THE 8 RULES -->
+  <div class="slide" data-title="The 8 Rules">
+    <div class="slide-tag">Non-negotiables</div>
+    <h2>8 rules that are <span class="red">not optional</span></h2>
+    <p class="lead">We'll cover each one. These are the lines we don't cross — because crossing them is what created the chaos we're fixing.</p>
+    <div class="card-row" style="margin-top:24px">
+      <div class="card" style="border-left:3px solid var(--red);border-radius:0 14px 14px 0;max-width:340px">
+        <p style="font-size:13px;color:var(--muted)">Rules cover: pre-SOW sign-off · named PM/TPM · software capacity · post-SOW change requests · FSD baseline · site readiness · verbal commitments</p>
+      </div>
+    </div>
+    <p style="color:var(--muted);font-size:13px;margin-top:20px">Use the ▶ button to step through each rule one at a time →</p>
+  </div>
+
+  <!-- RULES 1-8 individual slides -->
+  <div class="slide" data-title="Rule 1">
+    <div class="slide-tag">Non-negotiable · Rule 1 of 8</div>
+    <div class="rule-big">
+      <div class="rule-label">Rule 1</div>
+      <h3>No Technical Feasibility Gate = No SOW</h3>
+      <p>Software and Controls must sign the Technical Feasibility document before any Statement of Work is drafted. Sales does not own feasibility — engineering does. If engineering hasn't signed, the SOW doesn't exist.</p>
+    </div>
+  </div>
+
+  <div class="slide" data-title="Rule 2">
+    <div class="slide-tag">Non-negotiable · Rule 2 of 8</div>
+    <div class="rule-big">
+      <div class="rule-label">Rule 2</div>
+      <h3>No Named PM/TPM Pair = No Project Start</h3>
+      <p>Every project has exactly one PM (delivery owner) and one TPM (software scope owner). Three people with "Project Manager" in their title means zero people are accountable. If there's no named pair, the project does not start scheduling.</p>
+    </div>
+  </div>
+
+  <div class="slide" data-title="Rule 3">
+    <div class="slide-tag">Non-negotiable · Rule 3 of 8</div>
+    <div class="rule-big">
+      <div class="rule-label">Rule 3</div>
+      <h3>No Software/Controls SOW Sign-off = No Contract</h3>
+      <p>Any scope item touching software UI, integrations, reporting, or PLC logic requires written sign-off from the relevant lead before contract execution. If it impacts them, they approve it. Period.</p>
+    </div>
+  </div>
+
+  <div class="slide" data-title="Rule 4">
+    <div class="slide-tag">Non-negotiable · Rule 4 of 8</div>
+    <div class="rule-big">
+      <div class="rule-label">Rule 4</div>
+      <h3>Post-SOW Scope = Formal Change Request</h3>
+      <p>Any customization, new screen, new feature, or integration added after the SOW is signed requires a Change Request with estimated hours, schedule impact, and commercial impact — before a single hour of work begins. No exceptions. No favors.</p>
+    </div>
+  </div>
+
+  <div class="slide" data-title="Rule 5">
+    <div class="slide-tag">Non-negotiable · Rule 5 of 8</div>
+    <div class="rule-big">
+      <div class="rule-label">Rule 5</div>
+      <h3>No FSD/HI Baseline = No Build</h3>
+      <p>The build does not start until the Functional Spec and Host Interface documents are baselined, customer-approved, and signed by TPM, Software Lead, and Controls Lead. Verbal requirements are not scope. They are misunderstandings waiting to happen.</p>
+    </div>
+  </div>
+
+  <div class="slide" data-title="Rule 6">
+    <div class="slide-tag">Non-negotiable · Rule 6 of 8</div>
+    <div class="rule-big">
+      <div class="rule-label">Rule 6</div>
+      <h3>No Site Readiness Sign-off = No Travel</h3>
+      <p>No engineer travels to a customer site until the FAT/SAT checklist is complete and signed by Software and Controls. Arriving on-site to "figure it out" is not commissioning — it is expensive, embarrassing failure billed to us.</p>
+    </div>
+  </div>
+
+  <div class="slide" data-title="Rule 7">
+    <div class="slide-tag">Non-negotiable · Rule 7 of 8</div>
+    <div class="rule-big">
+      <div class="rule-label">Rule 7</div>
+      <h3>Software Capacity Is Not On-Demand</h3>
+      <p>Software engineers are not a utility you turn on when the project arrives. Capacity must be reserved by name in the scheduling system at project intake — weeks or months before work starts. Surprise projects don't absorb spare capacity. They create debt, burnout, and missed deadlines.</p>
+    </div>
+  </div>
+
+  <div class="slide" data-title="Rule 8">
+    <div class="slide-tag">Non-negotiable · Rule 8 of 8</div>
+    <div class="rule-big">
+      <div class="rule-label">Rule 8</div>
+      <h3>Verbal Commitments Are Scope Debt</h3>
+      <p>Anything promised to a customer by Sales, KAM, or SA that is not in the SOW is uncontracted scope. It must be surfaced immediately, logged, and resolved via a Change Request or SOW amendment. "I told them we could do that" is not a work order.</p>
+    </div>
+  </div>
+
+  <!-- SLIDE: METRICS -->
+  <div class="slide" data-title="How We Measure">
+    <div class="slide-tag">Accountability</div>
+    <h2>How we know <span class="accent">it's working</span></h2>
+    <p class="lead" style="margin-bottom:20px">These 5 numbers tell us whether the process is healthy. Reviewed monthly at PMO level.</p>
+    <div class="metric-row-wrap">
+      <div class="metric-box"><div class="ml">Pre-SOW Review Rate</div><div class="mv" style="color:var(--green)">100%</div><div class="ms">Target — SW+Controls reviewed every deal</div></div>
+      <div class="metric-box"><div class="ml">Days to Tech Gate</div><div class="mv" style="color:var(--accent)">&lt;10d</div><div class="ms">Target — from opp. creation to feasibility sign-off</div></div>
+      <div class="metric-box"><div class="ml">Named PM/TPM at T₀</div><div class="mv" style="color:var(--green)">100%</div><div class="ms">Target — no unnamed roles at kickoff</div></div>
+      <div class="metric-box"><div class="ml">SW Estimate Variance</div><div class="mv" style="color:var(--yellow)">±20%</div><div class="ms">Target for Upgrade projects</div></div>
+      <div class="metric-box"><div class="ml">P1s at Site Readiness</div><div class="mv" style="color:var(--green)">0</div><div class="ms">Target — zero critical defects at travel gate</div></div>
+    </div>
+  </div>
+
+  <!-- SLIDE: CLOSE -->
+  <div class="slide title-slide" data-title="Wrap-up">
+    <div class="slide-tag">That's the playbook</div>
+    <h1>This is how we <span class="green">protect each other</span></h1>
+    <p class="lead" style="margin-top:16px">The gates protect Sales from over-promising. They protect Software from being ambushed. They protect the customer from a bad delivery. Everyone wins when the process is followed.</p>
+    <p style="color:var(--muted);font-size:13px;margin-top:32px">Questions? Use this as a working document. Every rule and gate can be discussed — but they can't be skipped.</p>
+  </div>
+
+</div><!-- end #deck -->
+
+<!-- CONTROLS -->
+<div id="controls">
+  <div>
+    <div id="slide-counter">1 / 27</div>
+    <div class="key-hint">← → arrow keys</div>
+  </div>
+  <div id="slide-title-bar"></div>
+  <div style="display:flex;gap:8px">
+    <button class="nav-btn" id="prev-btn" onclick="navigate(-1)" disabled>← Prev</button>
+    <button class="nav-btn" id="next-btn" onclick="navigate(1)">Next →</button>
+  </div>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  let current = 0;
+
+  function showSlide(idx) {
+    slides[current].classList.remove('active');
+    slides[current].classList.add('exit-left');
+    setTimeout(() => slides[idx < current ? current : current].classList.remove('exit-left'), 400);
+
+    if (idx < current) {
+      slides[idx].style.transform = 'translateX(-60px)';
+    } else {
+      slides[idx].style.transform = 'translateX(60px)';
+    }
+    slides[idx].style.opacity = '0';
+    slides[idx].classList.add('active');
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        slides[idx].style.transform = '';
+        slides[idx].style.opacity = '';
+      });
+    });
+    slides[current].classList.remove('exit-left');
+    current = idx;
+    update();
+  }
+
+  function navigate(dir) {
+    const next = current + dir;
+    if (next < 0 || next >= slides.length) return;
+    showSlide(next);
+  }
+
+  function update() {
+    document.getElementById('slide-counter').textContent = `${current + 1} / ${slides.length}`;
+    document.getElementById('prev-btn').disabled = current === 0;
+    document.getElementById('next-btn').disabled = current === slides.length - 1;
+    document.getElementById('progress-fill').style.width = `${((current + 1) / slides.length) * 100}%`;
+    const title = slides[current].dataset.title || '';
+    document.getElementById('slide-title-bar').textContent = title;
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') navigate(1);
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') navigate(-1);
+  });
+
+  update();
+</script>
+</body>
+</html>

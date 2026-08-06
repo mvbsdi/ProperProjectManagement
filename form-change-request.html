@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Change Request Form</title>
+<style>
+  :root {
+    --bg: #0b0d13;
+    --surface: #13161f;
+    --surface2: #1c2030;
+    --border: #252a3d;
+    --accent: #3b82f6;
+    --red: #ef4444;
+    --orange: #f97316;
+    --yellow: #eab308;
+    --green: #22c55e;
+    --purple: #8b5cf6;
+    --text: #f1f5f9;
+    --muted: #64748b;
+    --muted2: #94a3b8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+  .page-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .page-header .brand { font-size: 12px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; }
+  .page-header h1 { font-size: 20px; font-weight: 700; margin-top: 4px; }
+  .page-header .doc-id { font-size: 12px; color: var(--muted); font-family: monospace; }
+  .container { max-width: 860px; margin: 0 auto; padding: 40px 24px; }
+  .section { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 24px; overflow: hidden; }
+  .section-header { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; gap: 12px; }
+  .section-header .num { width: 26px; height: 26px; border-radius: 50%; background: var(--orange); color: white; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .section-header h2 { font-size: 15px; font-weight: 600; }
+  .section-body { padding: 24px; }
+  .field-grid { display: grid; gap: 18px; grid-template-columns: 1fr 1fr; }
+  .field-grid.single { grid-template-columns: 1fr; }
+  .field-grid.triple { grid-template-columns: 1fr 1fr 1fr; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  label { font-size: 13px; font-weight: 600; color: var(--muted2); }
+  label span.req { color: var(--red); margin-left: 2px; }
+  input[type="text"], input[type="email"], input[type="date"], select, textarea {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); font-family: inherit; font-size: 14px; padding: 10px 14px;
+    transition: border-color .15s; width: 100%;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--orange); }
+  textarea { resize: vertical; min-height: 90px; }
+  select option { background: var(--surface2); }
+  .radio-group { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 2px; }
+  .radio-group label { display: flex; align-items: center; gap: 8px; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 10px 16px; cursor: pointer; font-size: 14px; color: var(--text); font-weight: 400; transition: border-color .15s, background .15s; }
+  .radio-group input[type="radio"] { accent-color: var(--orange); width: auto; }
+  .radio-group label:has(input:checked) { border-color: var(--orange); background: #1c0e00; }
+  .check-group { display: flex; flex-direction: column; gap: 8px; }
+  .check-group label { display: flex; align-items: flex-start; gap: 10px; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 10px 14px; cursor: pointer; font-size: 14px; color: var(--muted2); font-weight: 400; }
+  .check-group input[type="checkbox"] { accent-color: var(--orange); width: auto; margin-top: 2px; flex-shrink: 0; }
+  .check-group label:has(input:checked) { border-color: var(--orange); color: var(--text); }
+  .sig-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 16px; }
+  .sig-block { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .sig-block .role { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: 8px; }
+  .sig-block input { margin-bottom: 8px; }
+  .notice { background: #1c0e00; border: 1px solid #9a3412; border-radius: 8px; padding: 14px 18px; font-size: 13px; color: #fdba74; line-height: 1.5; margin-bottom: 20px; }
+  .notice strong { color: var(--text); }
+  .warning { background: #1c1200; border: 1px solid #854d0e; border-radius: 8px; padding: 14px 18px; font-size: 13px; color: #fde68a; line-height: 1.5; margin-top: 16px; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+  .hint { font-size: 12px; color: var(--muted); line-height: 1.4; margin-top: 3px; }
+  .submit-row { display: flex; align-items: center; justify-content: flex-end; gap: 16px; margin-top: 8px; }
+  .btn { padding: 12px 28px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: opacity .15s; }
+  .btn:hover { opacity: .85; }
+  .btn-primary { background: var(--orange); color: white; }
+  .btn-secondary { background: var(--surface2); color: var(--muted2); border: 1px solid var(--border); }
+
+  /* IMPACT MATRIX */
+  .impact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px; }
+  .impact-cell { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+  .impact-cell label { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); display: block; margin-bottom: 8px; font-weight: 600; }
+
+  @media (max-width: 640px) {
+    .field-grid, .field-grid.triple, .sig-row, .impact-grid { grid-template-columns: 1fr; }
+    .page-header { flex-direction: column; align-items: flex-start; gap: 6px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div>
+    <div class="brand">Software Delivery Governance</div>
+    <h1>Change Request Form</h1>
+  </div>
+  <div class="doc-id" id="doc-id">CR-XXXX-XXXX</div>
+</div>
+
+<div class="container">
+
+  <div class="notice">
+    <strong>No work begins on any change without an approved CR.</strong> Verbal agreements, Slack messages, and email threads are not change authorizations. This form must be completed, estimated by the Software Lead or Controls Lead (as applicable), and approved before development begins.
+  </div>
+
+  <form id="cr-form">
+
+    <!-- SECTION 1: CHANGE IDENTITY -->
+    <div class="section">
+      <div class="section-header"><div class="num">1</div><h2>Change Identity</h2></div>
+      <div class="section-body">
+        <div class="field-grid">
+          <div class="field">
+            <label>Project Name / Reference <span class="req">*</span></label>
+            <input type="text" name="project_ref" placeholder="e.g. Acme DC Phase 1" required>
+          </div>
+          <div class="field">
+            <label>Project Intake ID (if known)</label>
+            <input type="text" name="intake_ref" placeholder="e.g. INT-2026-4821">
+          </div>
+          <div class="field">
+            <label>CR Submitted By <span class="req">*</span></label>
+            <input type="text" name="submitted_by" required placeholder="Full name">
+          </div>
+          <div class="field">
+            <label>Submission Date <span class="req">*</span></label>
+            <input type="date" name="submission_date" id="submission_date" required>
+          </div>
+        </div>
+
+        <hr class="divider">
+
+        <div class="field" style="margin-bottom: 18px;">
+          <label>Change Type <span class="req">*</span></label>
+          <div class="radio-group">
+            <label><input type="radio" name="change_type" value="New UI Screen" required> New UI Screen</label>
+            <label><input type="radio" name="change_type" value="New Feature"> New Feature</label>
+            <label><input type="radio" name="change_type" value="Integration Change"> Integration Change</label>
+            <label><input type="radio" name="change_type" value="Configuration Change"> Configuration Change</label>
+            <label><input type="radio" name="change_type" value="PLC / Controls Change"> PLC / Controls Change</label>
+            <label><input type="radio" name="change_type" value="Other"> Other</label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Change Priority <span class="req">*</span></label>
+          <div class="radio-group">
+            <label><input type="radio" name="priority" value="Critical — Blocks Go-Live" required> Critical — Blocks Go-Live</label>
+            <label><input type="radio" name="priority" value="High — Required before handoff"> High — Required before handoff</label>
+            <label><input type="radio" name="priority" value="Medium — Required but flexible"> Medium — Required but flexible</label>
+            <label><input type="radio" name="priority" value="Low — Nice to have"> Low — Nice to have</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: CHANGE DESCRIPTION -->
+    <div class="section">
+      <div class="section-header"><div class="num">2</div><h2>Change Description</h2></div>
+      <div class="section-body">
+        <div class="field-grid single">
+          <div class="field">
+            <label>What is being requested? <span class="req">*</span></label>
+            <textarea name="change_description" rows="4" placeholder="Describe the change clearly and specifically. What should the system do that it does not currently do? What should change from its current behavior?" required></textarea>
+          </div>
+          <div class="field">
+            <label>Business / Customer Justification <span class="req">*</span></label>
+            <textarea name="justification" rows="3" placeholder="Why is this change needed? What customer or operational need does it address? If this is a contractual requirement, note the SOW section." required></textarea>
+          </div>
+          <div class="field">
+            <label>Was this in the original SOW / FSD baseline?</label>
+            <div class="radio-group" style="margin-top: 4px;">
+              <label><input type="radio" name="in_sow" value="Yes — reference section below"> Yes — reference section below</label>
+              <label><input type="radio" name="in_sow" value="No — this is net-new scope"> No — this is net-new scope</label>
+              <label><input type="radio" name="in_sow" value="Unclear"> Unclear / needs review</label>
+            </div>
+          </div>
+          <div class="field">
+            <label>SOW / FSD Reference (if applicable)</label>
+            <input type="text" name="sow_reference" placeholder="e.g. SOW Section 4.2 — Operator Dashboard Requirements">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 3: IMPACT ASSESSMENT -->
+    <div class="section">
+      <div class="section-header"><div class="num">3</div><h2>Impact Assessment</h2></div>
+      <div class="section-body">
+        <div class="impact-grid">
+          <div class="impact-cell">
+            <label>Timeline Impact</label>
+            <div class="radio-group" style="flex-direction: column; gap: 8px;">
+              <label><input type="radio" name="timeline_impact" value="No impact"> No impact</label>
+              <label><input type="radio" name="timeline_impact" value="Minor delay (< 1 week)"> Minor delay (&lt; 1 week)</label>
+              <label><input type="radio" name="timeline_impact" value="Moderate delay (1–3 weeks)"> Moderate delay (1–3 weeks)</label>
+              <label><input type="radio" name="timeline_impact" value="Significant delay (> 3 weeks)"> Significant delay (&gt; 3 weeks)</label>
+            </div>
+          </div>
+          <div class="impact-cell">
+            <label>Commercial Impact</label>
+            <div class="radio-group" style="flex-direction: column; gap: 8px;">
+              <label><input type="radio" name="commercial_impact" value="Absorbed — within scope"> Absorbed — within original scope</label>
+              <label><input type="radio" name="commercial_impact" value="Billable — customer to be invoiced"> Billable — customer to be invoiced</label>
+              <label><input type="radio" name="commercial_impact" value="TBD — requires commercial review"> TBD — requires commercial review</label>
+            </div>
+          </div>
+          <div class="impact-cell">
+            <label>Systems / Modules Affected</label>
+            <div class="check-group" style="margin-top: 4px; gap: 6px;">
+              <label><input type="checkbox" name="affected_ui"> UI / Front-end</label>
+              <label><input type="checkbox" name="affected_api"> API / Back-end</label>
+              <label><input type="checkbox" name="affected_plc"> PLC / Controls</label>
+              <label><input type="checkbox" name="affected_integration"> External Integration</label>
+              <label><input type="checkbox" name="affected_db"> Database / Schema</label>
+              <label><input type="checkbox" name="affected_config"> Configuration</label>
+            </div>
+          </div>
+          <div class="impact-cell">
+            <label>Risk Level</label>
+            <div class="radio-group" style="flex-direction: column; gap: 8px;">
+              <label><input type="radio" name="risk_level" value="Low — isolated change"> Low — isolated, no upstream impact</label>
+              <label><input type="radio" name="risk_level" value="Medium — some integration risk"> Medium — some integration risk</label>
+              <label><input type="radio" name="risk_level" value="High — requires full regression"> High — requires full regression</label>
+            </div>
+          </div>
+        </div>
+        <div class="field" style="margin-top: 18px;">
+          <label>Impact Detail / Notes</label>
+          <textarea name="impact_notes" rows="2" placeholder="Describe any dependencies, downstream effects, or integration risks not captured above."></textarea>
+        </div>
+        <div class="warning">
+          <strong>Note:</strong> If this change impacts the go-live date, the PM and TPM must be notified immediately. Do not absorb schedule impact silently. Document it here and escalate.
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 4: EFFORT ESTIMATE -->
+    <div class="section">
+      <div class="section-header"><div class="num">4</div><h2>Effort Estimate</h2></div>
+      <div class="section-body">
+        <div class="field-grid triple">
+          <div class="field">
+            <label>Software Estimate (hours)</label>
+            <input type="text" name="sw_hours" placeholder="e.g. 24 hours">
+          </div>
+          <div class="field">
+            <label>Controls Estimate (hours)</label>
+            <input type="text" name="controls_hours" placeholder="e.g. 8 hours">
+          </div>
+          <div class="field">
+            <label>QA / Testing Estimate (hours)</label>
+            <input type="text" name="qa_hours" placeholder="e.g. 4 hours">
+          </div>
+          <div class="field">
+            <label>Estimated by (SW Lead or Controls Lead)</label>
+            <input type="text" name="estimated_by" placeholder="Full name">
+          </div>
+          <div class="field">
+            <label>Estimate Date</label>
+            <input type="date" name="estimate_date">
+          </div>
+          <div class="field">
+            <label>Target Completion Date</label>
+            <input type="date" name="target_completion">
+          </div>
+        </div>
+        <hr class="divider">
+        <div class="field">
+          <label>Estimate Notes / Assumptions</label>
+          <textarea name="estimate_notes" rows="2" placeholder="What assumptions are embedded in this estimate? What could cause it to increase?"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 5: APPROVAL -->
+    <div class="section">
+      <div class="section-header"><div class="num">5</div><h2>Approval</h2></div>
+      <div class="section-body">
+        <p style="font-size: 14px; color: var(--muted2); margin-bottom: 16px;">Work does not begin until all required approvals are captured. Customer approval is required for any billable or go-live-impacting change.</p>
+        <div class="sig-row">
+          <div class="sig-block">
+            <div class="role">Software Lead</div>
+            <div class="radio-group" style="flex-direction: column; gap: 6px; margin-bottom: 10px;">
+              <label style="padding: 6px 10px;"><input type="radio" name="sw_approval" value="Approved"> Approved</label>
+              <label style="padding: 6px 10px;"><input type="radio" name="sw_approval" value="Rejected"> Rejected</label>
+              <label style="padding: 6px 10px;"><input type="radio" name="sw_approval" value="Needs Info"> Needs More Info</label>
+            </div>
+            <input type="text" name="sig_sw" placeholder="Full name">
+            <input type="date" name="sig_sw_date">
+          </div>
+          <div class="sig-block">
+            <div class="role">TPM</div>
+            <div class="radio-group" style="flex-direction: column; gap: 6px; margin-bottom: 10px;">
+              <label style="padding: 6px 10px;"><input type="radio" name="tpm_approval" value="Approved"> Approved</label>
+              <label style="padding: 6px 10px;"><input type="radio" name="tpm_approval" value="Rejected"> Rejected</label>
+              <label style="padding: 6px 10px;"><input type="radio" name="tpm_approval" value="Needs Info"> Needs More Info</label>
+            </div>
+            <input type="text" name="sig_tpm" placeholder="Full name">
+            <input type="date" name="sig_tpm_date">
+          </div>
+          <div class="sig-block">
+            <div class="role">Customer / Commercial (if billable)</div>
+            <div class="radio-group" style="flex-direction: column; gap: 6px; margin-bottom: 10px;">
+              <label style="padding: 6px 10px;"><input type="radio" name="customer_approval" value="Approved"> Approved</label>
+              <label style="padding: 6px 10px;"><input type="radio" name="customer_approval" value="Rejected"> Rejected</label>
+              <label style="padding: 6px 10px;"><input type="radio" name="customer_approval" value="N/A"> N/A — absorbed</label>
+            </div>
+            <input type="text" name="sig_customer" placeholder="Customer contact name">
+            <input type="date" name="sig_customer_date">
+          </div>
+        </div>
+        <div class="field" style="margin-top: 18px;">
+          <label>Rejection / Deferral Reason (if applicable)</label>
+          <textarea name="rejection_reason" rows="2" placeholder="If rejected or deferred, explain why and what must happen before this CR can be re-submitted."></textarea>
+        </div>
+        <hr class="divider">
+        <div class="submit-row">
+          <button type="button" class="btn btn-secondary" onclick="window.print()">Print / Save PDF</button>
+          <button type="submit" class="btn btn-primary">Submit via Email</button>
+        </div>
+      </div>
+    </div>
+
+  </form>
+</div>
+
+<script>
+  const crId = 'CR-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random() * 9000) + 1000);
+  document.getElementById('doc-id').textContent = crId;
+  document.getElementById('submission_date').value = new Date().toISOString().slice(0,10);
+
+  document.getElementById('cr-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const data = new FormData(this);
+    const to = 'your-team@yourcompany.com'; // ← REPLACE
+
+    const lines = [
+      '=== CHANGE REQUEST ===',
+      'CR ID: ' + crId,
+      '',
+      '--- IDENTITY ---',
+      'Project: ' + (data.get('project_ref') || ''),
+      'Intake Ref: ' + (data.get('intake_ref') || ''),
+      'Submitted By: ' + (data.get('submitted_by') || ''),
+      'Date: ' + (data.get('submission_date') || ''),
+      'Change Type: ' + (data.get('change_type') || ''),
+      'Priority: ' + (data.get('priority') || ''),
+      '',
+      '--- DESCRIPTION ---',
+      'Change: ' + (data.get('change_description') || ''),
+      'Justification: ' + (data.get('justification') || ''),
+      'In SOW: ' + (data.get('in_sow') || ''),
+      'SOW Reference: ' + (data.get('sow_reference') || ''),
+      '',
+      '--- IMPACT ---',
+      'Timeline Impact: ' + (data.get('timeline_impact') || ''),
+      'Commercial Impact: ' + (data.get('commercial_impact') || ''),
+      'Risk Level: ' + (data.get('risk_level') || ''),
+      'Impact Notes: ' + (data.get('impact_notes') || ''),
+      '',
+      '--- ESTIMATE ---',
+      'SW Hours: ' + (data.get('sw_hours') || ''),
+      'Controls Hours: ' + (data.get('controls_hours') || ''),
+      'QA Hours: ' + (data.get('qa_hours') || ''),
+      'Estimated By: ' + (data.get('estimated_by') || ''),
+      'Target Completion: ' + (data.get('target_completion') || ''),
+      'Estimate Notes: ' + (data.get('estimate_notes') || ''),
+      '',
+      '--- APPROVALS ---',
+      'SW Lead: ' + (data.get('sw_approval') || '') + ' — ' + (data.get('sig_sw') || '') + ' ' + (data.get('sig_sw_date') || ''),
+      'TPM: ' + (data.get('tpm_approval') || '') + ' — ' + (data.get('sig_tpm') || '') + ' ' + (data.get('sig_tpm_date') || ''),
+      'Customer: ' + (data.get('customer_approval') || '') + ' — ' + (data.get('sig_customer') || '') + ' ' + (data.get('sig_customer_date') || ''),
+    ];
+
+    const subject = encodeURIComponent('[CR] ' + (data.get('project_ref') || 'Project') + ' — ' + crId);
+    const body = encodeURIComponent(lines.join('\n'));
+    window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+  });
+</script>
+</body>
+</html>

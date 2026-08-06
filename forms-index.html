@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Software Delivery Governance — Document Hub</title>
+<style>
+  :root {
+    --bg: #0b0d13;
+    --surface: #13161f;
+    --surface2: #1c2030;
+    --border: #252a3d;
+    --accent: #3b82f6;
+    --red: #ef4444;
+    --orange: #f97316;
+    --yellow: #eab308;
+    --green: #22c55e;
+    --purple: #8b5cf6;
+    --text: #f1f5f9;
+    --muted: #64748b;
+    --muted2: #94a3b8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+  }
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 48px 28px;
+  }
+  .header .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+  .header h1 { font-size: 28px; font-weight: 800; }
+  .header p { font-size: 15px; color: var(--muted2); margin-top: 6px; max-width: 600px; line-height: 1.5; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 48px 24px; }
+
+  /* SECTION HEADER */
+  .section-title { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+
+  /* DOCUMENT CARDS */
+  .doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 48px; }
+  .doc-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px 26px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color .15s, background .15s, transform .15s;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+  }
+  .doc-card:hover { border-color: var(--accent); background: var(--surface2); transform: translateY(-2px); }
+  .doc-card:hover .card-arrow { opacity: 1; }
+  .doc-card.orange:hover { border-color: var(--orange); }
+  .doc-card.red:hover { border-color: var(--red); }
+  .doc-card.green:hover { border-color: var(--green); }
+  .doc-card.purple:hover { border-color: var(--purple); }
+
+  .card-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; margin-bottom: 16px;
+    background: var(--surface2);
+  }
+  .card-icon.blue { background: #0f1e3d; }
+  .card-icon.orange { background: #1c0e00; }
+  .card-icon.red { background: #1c0a0a; }
+  .card-icon.green { background: #052e16; }
+  .card-icon.purple { background: #1a0a2e; }
+
+  .card-type { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+  .card-type.orange { color: var(--orange); }
+  .card-type.red { color: var(--red); }
+  .card-type.green { color: var(--green); }
+  .card-type.purple { color: var(--purple); }
+
+  .doc-card h2 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+  .doc-card p { font-size: 13px; color: var(--muted2); line-height: 1.5; flex: 1; }
+  .card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .card-tag { font-size: 11px; color: var(--muted); }
+  .card-arrow { font-size: 16px; color: var(--accent); opacity: 0; transition: opacity .15s; }
+  .doc-card.orange .card-arrow { color: var(--orange); }
+  .doc-card.red .card-arrow { color: var(--red); }
+  .doc-card.green .card-arrow { color: var(--green); }
+  .doc-card.purple .card-arrow { color: var(--purple); }
+
+  /* PROCESS FLOW */
+  .flow { display: flex; flex-wrap: wrap; gap: 0; margin-bottom: 48px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .flow-step { flex: 1; min-width: 160px; padding: 18px 20px; border-right: 1px solid var(--border); position: relative; }
+  .flow-step:last-child { border-right: none; }
+  .flow-step .step-n { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .flow-step .step-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .flow-step .step-doc { font-size: 12px; color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color .15s; }
+  .flow-step .step-doc:hover { border-bottom-color: var(--accent); }
+  .flow-step.gate { background: var(--surface2); }
+  .gate-badge { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; background: #1c0a0a; color: #fca5a5; border: 1px solid #7f1d1d; margin-bottom: 6px; }
+
+  /* USAGE RULES */
+  .rules { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 28px; margin-bottom: 48px; }
+  .rules ul { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
+  .rules ul li { display: flex; align-items: flex-start; gap: 12px; font-size: 14px; color: var(--muted2); line-height: 1.5; }
+  .rules ul li::before { content: '→'; color: var(--accent); flex-shrink: 0; font-weight: 700; }
+  .rules ul li strong { color: var(--text); }
+
+  /* EMAIL CONFIG */
+  .config { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 20px 24px; margin-bottom: 48px; font-size: 13px; color: var(--muted2); line-height: 1.6; }
+  .config code { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; font-family: monospace; color: var(--accent); font-size: 12px; }
+  .config strong { color: var(--text); }
+
+  @media (max-width: 640px) {
+    .header { padding: 24px; }
+    .flow { flex-direction: column; }
+    .flow-step { border-right: none; border-bottom: 1px solid var(--border); }
+    .flow-step:last-child { border-bottom: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="eyebrow">Software Delivery Governance</div>
+  <h1>📋 Document Hub</h1>
+  <p>All project governance forms and reference documents in one place. Use the correct document at each stage of the project lifecycle.</p>
+</div>
+
+<div class="container">
+
+  <!-- PROCESS FLOW -->
+  <div class="section-title">When to Use Each Document</div>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="step-n">Stage 1–2</div>
+      <div class="step-name">Pre-Sale</div>
+      <a class="step-doc" href="project-lifecycle-exec.html">↗ Executive Deck</a>
+    </div>
+    <div class="flow-step gate">
+      <div class="gate-badge">Gate 1</div>
+      <div class="step-name">SOW Freeze</div>
+      <a class="step-doc" href="form-gate-checklist.html">↗ Gate Checklist</a>
+    </div>
+    <div class="flow-step">
+      <div class="step-n">Stage 4</div>
+      <div class="step-name">Project Intake</div>
+      <a class="step-doc" href="form-project-intake.html">↗ Intake Form</a>
+    </div>
+    <div class="flow-step gate">
+      <div class="gate-badge">Gate 2</div>
+      <div class="step-name">Design Freeze</div>
+      <a class="step-doc" href="form-gate-checklist.html">↗ Gate Checklist</a>
+    </div>
+    <div class="flow-step">
+      <div class="step-n">Any Stage</div>
+      <div class="step-name">Change Request</div>
+      <a class="step-doc" href="form-change-request.html">↗ CR Form</a>
+    </div>
+    <div class="flow-step gate">
+      <div class="gate-badge">Gate 3</div>
+      <div class="step-name">Site Readiness</div>
+      <a class="step-doc" href="form-gate-checklist.html">↗ Gate Checklist</a>
+    </div>
+  </div>
+
+  <!-- FORMS -->
+  <div class="section-title">Operational Forms</div>
+  <div class="doc-grid">
+
+    <a class="doc-card" href="form-project-intake.html">
+      <div class="card-icon blue">📥</div>
+      <div class="card-type">Intake Form</div>
+      <h2>Project Intake</h2>
+      <p>Required before any project enters the pipeline. Captures project type, scope, role assignments, feasibility sign-off, and resource requirements. Completed by TPM.</p>
+      <div class="card-footer">
+        <span class="card-tag">Stage 4 — Every Project</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <a class="doc-card orange" href="form-change-request.html">
+      <div class="card-icon orange">🔄</div>
+      <div class="card-type orange">Change Request</div>
+      <h2>Change Request (CR)</h2>
+      <p>Required for any change to agreed scope — new screens, features, integrations, configuration changes, or PLC modifications. No CR = no work. Submitted by requesting party, estimated by SW or Controls Lead.</p>
+      <div class="card-footer">
+        <span class="card-tag">Any Stage — Post-SOW</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <a class="doc-card red" href="form-gate-checklist.html">
+      <div class="card-icon red">🔒</div>
+      <div class="card-type red">Gate Sign-Off</div>
+      <h2>Gate Checklist</h2>
+      <p>A single form covering all three delivery gates. Select Gate 1 (SOW Freeze), Gate 2 (Design Freeze), or Gate 3 (Site Readiness). All blocker items must be checked before the gate passes. Completed by TPM with SW and Controls sign-off.</p>
+      <div class="card-footer">
+        <span class="card-tag">Gates 1, 2, 3</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- REFERENCE DOCS -->
+  <div class="section-title">Reference &amp; Presentation Documents</div>
+  <div class="doc-grid">
+
+    <a class="doc-card purple" href="project-lifecycle-exec.html">
+      <div class="card-icon purple">📊</div>
+      <div class="card-type purple">Presentation</div>
+      <h2>Executive Working Session</h2>
+      <p>20-slide deck for presenting the governance framework to leadership. Opens with business risk, diagnoses structural failures, proposes the fix, and closes with four formal asks. Use this to get leadership buy-in.</p>
+      <div class="card-footer">
+        <span class="card-tag">For Leadership</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <a class="doc-card green" href="project-lifecycle-slides.html">
+      <div class="card-icon green">🎯</div>
+      <div class="card-type green">Presentation</div>
+      <h2>Team Overview Deck</h2>
+      <p>27-slide introductory deck for team-level rollout. One idea per slide, plain language. Use this to walk cross-functional teams through the new process without overwhelming them.</p>
+      <div class="card-footer">
+        <span class="card-tag">For All Staff</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <a class="doc-card" href="project-lifecycle-pack.html">
+      <div class="card-icon blue">📄</div>
+      <div class="card-type">Reference</div>
+      <h2>Full Governance Pack</h2>
+      <p>Complete single-page reference with the full 10-stage lifecycle, RACI matrix, all 6 gate checklists, intake checklist, 8 operating rules, and accountability metrics. For PMs and TPMs who need the full detail.</p>
+      <div class="card-footer">
+        <span class="card-tag">Full Reference</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- USAGE RULES -->
+  <div class="section-title">Governance Rules Summary</div>
+  <div class="rules">
+    <ul>
+      <li><strong>Intake form is required for every project</strong> before it enters the pipeline. No named TPM, SW Lead, and Controls Lead = project does not start.</li>
+      <li><strong>Gate 1 (SOW Freeze) must pass before any contract is issued.</strong> Sales does not sign without SW + Controls sign-off.</li>
+      <li><strong>Gate 2 (Design Freeze) must pass before build begins.</strong> No FSD baseline = no development.</li>
+      <li><strong>Gate 3 (Site Readiness) must pass before any travel is approved.</strong> SW + Controls confirm readiness. PM confirms customer site.</li>
+      <li><strong>All customizations require a Change Request</strong> before work begins. Verbal requests are not work orders. No CR = no work.</li>
+      <li><strong>Gate bypasses require leadership approval</strong> — named approver, documented exception, risk ownership assigned.</li>
+      <li><strong>All forms submit via email.</strong> Update the <code>to</code> email address in each form before deploying. Replace <code>your-team@yourcompany.com</code>.</li>
+    </ul>
+  </div>
+
+  <!-- CONFIG NOTE -->
+  <div class="section-title">Setup</div>
+  <div class="config">
+    <strong>To configure email submission:</strong> Open each form file and find the line <code>const to = 'your-team@yourcompany.com';</code> near the bottom of the file. Replace it with your team's actual email address. Each form will email its data to that address when submitted.<br><br>
+    <strong>To host these forms:</strong> All files are self-contained HTML — no backend required. Upload the folder to any static hosting service (SharePoint, internal intranet, GitHub Pages, Azure Static Web Apps, Netlify, etc.). All links between documents use relative paths and will work as long as the files stay in the same folder.
+  </div>
+
+</div>
+</body>
+</html>

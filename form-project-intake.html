@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Intake Form</title>
+<style>
+  :root {
+    --bg: #0b0d13;
+    --surface: #13161f;
+    --surface2: #1c2030;
+    --border: #252a3d;
+    --accent: #3b82f6;
+    --red: #ef4444;
+    --orange: #f97316;
+    --yellow: #eab308;
+    --green: #22c55e;
+    --text: #f1f5f9;
+    --muted: #64748b;
+    --muted2: #94a3b8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+
+  /* HEADER */
+  .page-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .page-header .brand { font-size: 12px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; }
+  .page-header h1 { font-size: 20px; font-weight: 700; margin-top: 4px; }
+  .page-header .doc-id { font-size: 12px; color: var(--muted); font-family: monospace; }
+
+  /* CONTAINER */
+  .container { max-width: 860px; margin: 0 auto; padding: 40px 24px; }
+
+  /* SECTION */
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .section-header {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-header .num {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--accent); color: white;
+    font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .section-header h2 { font-size: 15px; font-weight: 600; }
+  .section-body { padding: 24px; }
+
+  /* FIELDS */
+  .field-grid { display: grid; gap: 18px; grid-template-columns: 1fr 1fr; }
+  .field-grid.single { grid-template-columns: 1fr; }
+  .field-grid.triple { grid-template-columns: 1fr 1fr 1fr; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  label { font-size: 13px; font-weight: 600; color: var(--muted2); }
+  label span.req { color: var(--red); margin-left: 2px; }
+  input[type="text"],
+  input[type="email"],
+  input[type="date"],
+  select,
+  textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    padding: 10px 14px;
+    transition: border-color .15s;
+    width: 100%;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  textarea { resize: vertical; min-height: 90px; }
+  select option { background: var(--surface2); }
+
+  /* RADIO GROUP */
+  .radio-group { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 2px; }
+  .radio-group label {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 16px;
+    cursor: pointer; font-size: 14px; color: var(--text);
+    font-weight: 400;
+    transition: border-color .15s, background .15s;
+  }
+  .radio-group input[type="radio"] { accent-color: var(--accent); width: auto; }
+  .radio-group label:has(input:checked) { border-color: var(--accent); background: #0f1e3d; }
+
+  /* CHECKBOX GROUP */
+  .check-group { display: flex; flex-direction: column; gap: 8px; }
+  .check-group label {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 14px;
+    cursor: pointer; font-size: 14px; color: var(--muted2);
+    font-weight: 400;
+  }
+  .check-group input[type="checkbox"] { accent-color: var(--accent); width: auto; margin-top: 2px; flex-shrink: 0; }
+  .check-group label:has(input:checked) { border-color: var(--accent); color: var(--text); }
+
+  /* SIGNATURE ROW */
+  .sig-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .sig-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+  .sig-block .role { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: 8px; }
+  .sig-block input { margin-bottom: 8px; }
+
+  /* NOTICE BOX */
+  .notice {
+    background: #0c1a2e;
+    border: 1px solid #1d4ed8;
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: 13px;
+    color: #93c5fd;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+  .notice strong { color: var(--text); }
+
+  /* SUBMIT */
+  .submit-row { display: flex; align-items: center; justify-content: flex-end; gap: 16px; margin-top: 8px; }
+  .btn {
+    padding: 12px 28px; border-radius: 8px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    border: none; transition: opacity .15s;
+  }
+  .btn:hover { opacity: .85; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-secondary { background: var(--surface2); color: var(--muted2); border: 1px solid var(--border); }
+
+  /* DIVIDER */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+  /* HINT */
+  .hint { font-size: 12px; color: var(--muted); line-height: 1.4; margin-top: 3px; }
+
+  @media (max-width: 640px) {
+    .field-grid, .field-grid.triple, .sig-row { grid-template-columns: 1fr; }
+    .page-header { flex-direction: column; align-items: flex-start; gap: 6px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div>
+    <div class="brand">Software Delivery Governance</div>
+    <h1>Project Intake Form</h1>
+  </div>
+  <div class="doc-id" id="doc-id">INT-<span id="intake-id"></span></div>
+</div>
+
+<div class="container">
+
+  <div class="notice">
+    <strong>Required before project is entered into the pipeline.</strong> This form must be completed by the TPM and reviewed by Software Lead and Controls Lead before any work is scheduled or resources assigned. Fields marked <span style="color: var(--red)">*</span> are required.
+  </div>
+
+  <form id="intake-form">
+
+    <!-- SECTION 1: PROJECT IDENTITY -->
+    <div class="section">
+      <div class="section-header"><div class="num">1</div><h2>Project Identity</h2></div>
+      <div class="section-body">
+        <div class="field-grid">
+          <div class="field">
+            <label>Project Name / Customer <span class="req">*</span></label>
+            <input type="text" name="project_name" id="project_name" placeholder="e.g. Acme Distribution Center — Phase 1" required>
+          </div>
+          <div class="field">
+            <label>Customer / Account</label>
+            <input type="text" name="customer" placeholder="Customer legal name or account name">
+          </div>
+          <div class="field">
+            <label>Intake Date <span class="req">*</span></label>
+            <input type="date" name="intake_date" id="intake_date" required>
+          </div>
+          <div class="field">
+            <label>Expected Contract / SOW Date</label>
+            <input type="date" name="sow_date">
+          </div>
+        </div>
+
+        <hr class="divider">
+
+        <div class="field" style="margin-bottom: 18px;">
+          <label>Project Type <span class="req">*</span></label>
+          <div class="radio-group">
+            <label><input type="radio" name="project_type" value="Greenfield" required> Greenfield (New System)</label>
+            <label><input type="radio" name="project_type" value="Recontrol"> Recontrol / Major Upgrade</label>
+            <label><input type="radio" name="project_type" value="Minor Upgrade"> Minor Upgrade / Add-On</label>
+            <label><input type="radio" name="project_type" value="Customization Only"> Customization Only (CR Required)</label>
+          </div>
+        </div>
+
+        <div class="field-grid triple">
+          <div class="field">
+            <label>Target Go-Live Date</label>
+            <input type="date" name="golive_date">
+          </div>
+          <div class="field">
+            <label>Site Location</label>
+            <input type="text" name="site_location" placeholder="City, State / Country">
+          </div>
+          <div class="field">
+            <label>Estimated Project Value (range is fine)</label>
+            <input type="text" name="project_value" placeholder="e.g. $500K–$1M">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2: ROLES & DRI ASSIGNMENT -->
+    <div class="section">
+      <div class="section-header"><div class="num">2</div><h2>Role &amp; DRI Assignment</h2></div>
+      <div class="section-body">
+        <div class="field-grid">
+          <div class="field">
+            <label>Key Account Manager (KAM) / Sales <span class="req">*</span></label>
+            <input type="text" name="kam" placeholder="Full name">
+          </div>
+          <div class="field">
+            <label>Project Manager (PM) — Delivery DRI <span class="req">*</span></label>
+            <input type="text" name="pm" placeholder="Full name">
+          </div>
+          <div class="field">
+            <label>Technical Project Manager (TPM) — Scope DRI <span class="req">*</span></label>
+            <input type="text" name="tpm" placeholder="Full name">
+          </div>
+          <div class="field">
+            <label>Solution Architect (SA)</label>
+            <input type="text" name="sa" placeholder="Full name">
+          </div>
+          <div class="field">
+            <label>Software Lead <span class="req">*</span></label>
+            <input type="text" name="sw_lead" placeholder="Full name">
+          </div>
+          <div class="field">
+            <label>Controls Lead <span class="req">*</span></label>
+            <input type="text" name="controls_lead" placeholder="Full name">
+          </div>
+        </div>
+        <div class="hint" style="margin-top: 4px;">One named individual per role. If a role is unfilled, note "TBD" and flag for immediate resolution — no project proceeds without a named TPM, SW Lead, and Controls Lead.</div>
+      </div>
+    </div>
+
+    <!-- SECTION 3: SCOPE SUMMARY -->
+    <div class="section">
+      <div class="section-header"><div class="num">3</div><h2>Scope Summary</h2></div>
+      <div class="section-body">
+        <div class="field-grid single">
+          <div class="field">
+            <label>High-Level Scope Description <span class="req">*</span></label>
+            <textarea name="scope_description" rows="4" placeholder="Describe what is being delivered at a functional level. What does the customer expect the system to do?"></textarea>
+          </div>
+          <div class="field">
+            <label>Known Software Components / Modules In Scope</label>
+            <textarea name="sw_components" rows="3" placeholder="e.g. WMS integration, conveyor routing logic, new operator UI screens, PLC interface layer..."></textarea>
+          </div>
+          <div class="field">
+            <label>Known Hardware / Controls Components In Scope</label>
+            <textarea name="hw_components" rows="3" placeholder="e.g. PLC model, conveyor type, scanner hardware, existing infrastructure to reuse..."></textarea>
+          </div>
+        </div>
+        <hr class="divider">
+        <div class="field">
+          <label>Known Exclusions / Out of Scope</label>
+          <textarea name="exclusions" rows="2" placeholder="What is explicitly NOT included in this engagement?"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 4: FEASIBILITY & RISK -->
+    <div class="section">
+      <div class="section-header"><div class="num">4</div><h2>Feasibility &amp; Risk Assessment</h2></div>
+      <div class="section-body">
+        <div class="field" style="margin-bottom: 18px;">
+          <label>Has Software Lead reviewed proposed scope for feasibility? <span class="req">*</span></label>
+          <div class="radio-group">
+            <label><input type="radio" name="sw_feasibility" value="Yes" required> Yes — signed off</label>
+            <label><input type="radio" name="sw_feasibility" value="No"> No — review pending</label>
+            <label><input type="radio" name="sw_feasibility" value="Partial"> Partial — open items remain (document below)</label>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom: 18px;">
+          <label>Has Controls Lead reviewed proposed scope for feasibility? <span class="req">*</span></label>
+          <div class="radio-group">
+            <label><input type="radio" name="controls_feasibility" value="Yes" required> Yes — signed off</label>
+            <label><input type="radio" name="controls_feasibility" value="No"> No — review pending</label>
+            <label><input type="radio" name="controls_feasibility" value="Partial"> Partial — open items remain (document below)</label>
+          </div>
+        </div>
+        <div class="field-grid single">
+          <div class="field">
+            <label>Open Feasibility Items / Risk Notes</label>
+            <textarea name="risk_notes" rows="3" placeholder="Document any unresolved feasibility questions, technical risks, or dependencies that must be resolved before SOW can be issued."></textarea>
+          </div>
+        </div>
+        <hr class="divider">
+        <div class="field">
+          <label>Identify applicable risk flags (check all that apply)</label>
+          <div class="check-group" style="margin-top: 8px;">
+            <label><input type="checkbox" name="risk_legacy"> Legacy system with unknown integration surface</label>
+            <label><input type="checkbox" name="risk_thirdparty"> Third-party system dependency not yet confirmed</label>
+            <label><input type="checkbox" name="risk_timeline"> Customer timeline is aggressive relative to scope</label>
+            <label><input type="checkbox" name="risk_resource"> Resource availability not yet confirmed for scheduled window</label>
+            <label><input type="checkbox" name="risk_customization"> Significant customization anticipated beyond standard product</label>
+            <label><input type="checkbox" name="risk_travel"> Multi-site or extended on-site requirement</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 5: RESOURCE & SCHEDULE -->
+    <div class="section">
+      <div class="section-header"><div class="num">5</div><h2>Resource &amp; Schedule Requirements</h2></div>
+      <div class="section-body">
+        <div class="field-grid">
+          <div class="field">
+            <label>Estimated Software Effort (hours or weeks)</label>
+            <input type="text" name="sw_effort" placeholder="e.g. 120 hours / 3 weeks">
+          </div>
+          <div class="field">
+            <label>Estimated Controls Effort (hours or weeks)</label>
+            <input type="text" name="controls_effort" placeholder="e.g. 80 hours / 2 weeks">
+          </div>
+          <div class="field">
+            <label>Estimated SA On-Site Time</label>
+            <input type="text" name="sa_onsite" placeholder="e.g. 2 weeks on-site">
+          </div>
+          <div class="field">
+            <label>Software Build Window (start – end)</label>
+            <input type="text" name="sw_window" placeholder="e.g. March 3 – April 14">
+          </div>
+        </div>
+        <hr class="divider">
+        <div class="field">
+          <label>Scheduling Conflicts or Constraints</label>
+          <textarea name="schedule_constraints" rows="2" placeholder="Other active projects competing for the same resources, holidays, customer blackout windows, etc."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 6: SIGN-OFF -->
+    <div class="section">
+      <div class="section-header"><div class="num">6</div><h2>Intake Sign-Off</h2></div>
+      <div class="section-body">
+        <p style="font-size: 14px; color: var(--muted2); margin-bottom: 16px;">By signing below, each party confirms they have reviewed the intake information and that this project is ready to enter the pipeline with the resources and commitments noted above.</p>
+        <div class="sig-row">
+          <div class="sig-block">
+            <div class="role">TPM Sign-Off</div>
+            <input type="text" name="sig_tpm_name" placeholder="Full name">
+            <input type="date" name="sig_tpm_date">
+          </div>
+          <div class="sig-block">
+            <div class="role">Software Lead Sign-Off</div>
+            <input type="text" name="sig_sw_name" placeholder="Full name">
+            <input type="date" name="sig_sw_date">
+          </div>
+          <div class="sig-block">
+            <div class="role">Controls Lead Sign-Off</div>
+            <input type="text" name="sig_controls_name" placeholder="Full name">
+            <input type="date" name="sig_controls_date">
+          </div>
+        </div>
+        <div class="field" style="margin-top: 18px;">
+          <label>Additional Notes</label>
+          <textarea name="notes" rows="2" placeholder="Anything not captured above that leadership should know before this project is approved."></textarea>
+        </div>
+        <hr class="divider">
+        <div class="submit-row">
+          <button type="button" class="btn btn-secondary" onclick="window.print()">Print / Save PDF</button>
+          <button type="submit" class="btn btn-primary">Submit via Email</button>
+        </div>
+      </div>
+    </div>
+
+  </form>
+</div>
+
+<script>
+  // Generate a short intake ID
+  const id = 'INT-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random() * 9000) + 1000);
+  document.getElementById('intake-id').textContent = id.replace('INT-','');
+  document.getElementById('doc-id').textContent = id;
+
+  // Default intake date to today
+  document.getElementById('intake_date').value = new Date().toISOString().slice(0,10);
+
+  // Submit handler — builds mailto
+  document.getElementById('intake-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const data = new FormData(this);
+    const to = 'your-team@yourcompany.com'; // ← REPLACE with your team email
+
+    const lines = [
+      '=== PROJECT INTAKE FORM ===',
+      'Document ID: ' + document.getElementById('doc-id').textContent,
+      '',
+      '--- PROJECT IDENTITY ---',
+      'Project Name: ' + (data.get('project_name') || ''),
+      'Customer: ' + (data.get('customer') || ''),
+      'Intake Date: ' + (data.get('intake_date') || ''),
+      'SOW Date: ' + (data.get('sow_date') || ''),
+      'Project Type: ' + (data.get('project_type') || ''),
+      'Target Go-Live: ' + (data.get('golive_date') || ''),
+      'Site Location: ' + (data.get('site_location') || ''),
+      'Project Value: ' + (data.get('project_value') || ''),
+      '',
+      '--- ROLES ---',
+      'KAM/Sales: ' + (data.get('kam') || ''),
+      'PM: ' + (data.get('pm') || ''),
+      'TPM: ' + (data.get('tpm') || ''),
+      'SA: ' + (data.get('sa') || ''),
+      'Software Lead: ' + (data.get('sw_lead') || ''),
+      'Controls Lead: ' + (data.get('controls_lead') || ''),
+      '',
+      '--- SCOPE ---',
+      'Scope: ' + (data.get('scope_description') || ''),
+      'SW Components: ' + (data.get('sw_components') || ''),
+      'HW Components: ' + (data.get('hw_components') || ''),
+      'Exclusions: ' + (data.get('exclusions') || ''),
+      '',
+      '--- FEASIBILITY ---',
+      'SW Feasibility: ' + (data.get('sw_feasibility') || ''),
+      'Controls Feasibility: ' + (data.get('controls_feasibility') || ''),
+      'Risk Notes: ' + (data.get('risk_notes') || ''),
+      '',
+      '--- RESOURCE & SCHEDULE ---',
+      'SW Effort: ' + (data.get('sw_effort') || ''),
+      'Controls Effort: ' + (data.get('controls_effort') || ''),
+      'SA On-Site: ' + (data.get('sa_onsite') || ''),
+      'SW Build Window: ' + (data.get('sw_window') || ''),
+      'Schedule Constraints: ' + (data.get('schedule_constraints') || ''),
+      '',
+      '--- SIGN-OFF ---',
+      'TPM: ' + (data.get('sig_tpm_name') || '') + ' — ' + (data.get('sig_tpm_date') || ''),
+      'SW Lead: ' + (data.get('sig_sw_name') || '') + ' — ' + (data.get('sig_sw_date') || ''),
+      'Controls Lead: ' + (data.get('sig_controls_name') || '') + ' — ' + (data.get('sig_controls_date') || ''),
+      '',
+      'Notes: ' + (data.get('notes') || ''),
+    ];
+
+    const subject = encodeURIComponent('[Project Intake] ' + (data.get('project_name') || 'New Project') + ' — ' + document.getElementById('doc-id').textContent);
+    const body = encodeURIComponent(lines.join('\n'));
+    window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+  });
+</script>
+</body>
+</html>

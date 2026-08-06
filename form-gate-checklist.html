@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gate Sign-Off Checklist</title>
+<style>
+  :root {
+    --bg: #0b0d13;
+    --surface: #13161f;
+    --surface2: #1c2030;
+    --border: #252a3d;
+    --accent: #3b82f6;
+    --red: #ef4444;
+    --orange: #f97316;
+    --yellow: #eab308;
+    --green: #22c55e;
+    --text: #f1f5f9;
+    --muted: #64748b;
+    --muted2: #94a3b8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; padding: 0 0 60px; }
+  .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 20px 40px; display: flex; align-items: center; justify-content: space-between; }
+  .page-header .brand { font-size: 12px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; }
+  .page-header h1 { font-size: 20px; font-weight: 700; margin-top: 4px; }
+  .page-header .doc-id { font-size: 12px; color: var(--muted); font-family: monospace; }
+  .container { max-width: 860px; margin: 0 auto; padding: 40px 24px; }
+  .section { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 24px; overflow: hidden; }
+  .section-header { background: var(--surface2); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; gap: 12px; }
+  .section-header .num { width: 26px; height: 26px; border-radius: 50%; background: var(--red); color: white; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .section-header h2 { font-size: 15px; font-weight: 600; }
+  .section-body { padding: 24px; }
+  .field-grid { display: grid; gap: 18px; grid-template-columns: 1fr 1fr; }
+  .field-grid.single { grid-template-columns: 1fr; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  label { font-size: 13px; font-weight: 600; color: var(--muted2); }
+  label span.req { color: var(--red); }
+  input[type="text"], input[type="date"], select, textarea { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-family: inherit; font-size: 14px; padding: 10px 14px; transition: border-color .15s; width: 100%; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--red); }
+  textarea { resize: vertical; min-height: 80px; }
+  select option { background: var(--surface2); }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+  .hint { font-size: 12px; color: var(--muted); line-height: 1.4; margin-top: 3px; }
+  .submit-row { display: flex; align-items: center; justify-content: flex-end; gap: 16px; margin-top: 8px; }
+  .btn { padding: 12px 28px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: opacity .15s; }
+  .btn:hover { opacity: .85; }
+  .btn-primary { background: var(--red); color: white; }
+  .btn-secondary { background: var(--surface2); color: var(--muted2); border: 1px solid var(--border); }
+
+  /* GATE SELECTOR */
+  .gate-tabs { display: flex; gap: 0; margin-bottom: 24px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .gate-tab { flex: 1; padding: 14px; text-align: center; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--muted2); background: var(--surface2); border-right: 1px solid var(--border); transition: background .15s, color .15s; }
+  .gate-tab:last-child { border-right: none; }
+  .gate-tab.active { background: var(--red); color: white; }
+  .gate-tab:hover:not(.active) { background: var(--border); color: var(--text); }
+
+  /* CHECKLIST */
+  .checklist { display: flex; flex-direction: column; gap: 8px; }
+  .check-item {
+    display: flex; align-items: flex-start; gap: 14px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px 16px;
+    transition: border-color .15s;
+  }
+  .check-item:has(input:checked) { border-color: var(--green); }
+  .check-item input[type="checkbox"] { accent-color: var(--green); width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; cursor: pointer; }
+  .check-item .check-body { flex: 1; }
+  .check-item .check-label { font-size: 14px; color: var(--text); line-height: 1.4; cursor: pointer; }
+  .check-item .check-desc { font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+  .check-item.blocker { border-left: 3px solid var(--red); }
+  .check-item.blocker:has(input:checked) { border-color: var(--green); border-left-color: var(--green); }
+
+  /* BLOCKER TAG */
+  .blocker-tag { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--red); background: #1c0a0a; border: 1px solid #7f1d1d; border-radius: 4px; padding: 2px 7px; margin-left: 8px; vertical-align: middle; }
+
+  /* GATE PANEL */
+  .gate-panel { display: none; }
+  .gate-panel.active { display: block; }
+
+  /* SIG ROW */
+  .sig-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 16px; }
+  .sig-block { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .sig-block .role { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: 8px; }
+  .sig-block input { margin-bottom: 8px; }
+
+  /* OUTCOME */
+  .outcome-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+  .outcome-btn { flex: 1; min-width: 120px; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--muted2); font-size: 14px; font-weight: 600; cursor: pointer; text-align: center; transition: all .15s; }
+  .outcome-btn:has(input:checked) { border-color: var(--green); background: #052e16; color: var(--green); }
+  .outcome-btn.fail:has(input:checked) { border-color: var(--red); background: #1c0a0a; color: var(--red); }
+  .outcome-btn.defer:has(input:checked) { border-color: var(--yellow); background: #1c1200; color: var(--yellow); }
+  .outcome-btn input[type="radio"] { display: none; }
+
+  .notice { background: #1c0a0a; border: 1px solid #7f1d1d; border-radius: 8px; padding: 14px 18px; font-size: 13px; color: #fca5a5; line-height: 1.5; margin-bottom: 20px; }
+  .notice strong { color: var(--text); }
+
+  @media (max-width: 640px) {
+    .field-grid, .sig-row { grid-template-columns: 1fr; }
+    .gate-tabs { flex-direction: column; }
+    .gate-tab { border-right: none; border-bottom: 1px solid var(--border); }
+    .gate-tab:last-child { border-bottom: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div>
+    <div class="brand">Software Delivery Governance</div>
+    <h1>Gate Sign-Off Checklist</h1>
+  </div>
+  <div class="doc-id" id="doc-id">GATE-XXXX</div>
+</div>
+
+<div class="container">
+
+  <div class="notice">
+    <strong>All blocker items must be checked before a gate can pass.</strong> Non-blocker items may be waived with documented justification and a named risk owner. Gate bypass requires explicit leadership approval — document it in the exception field below.
+  </div>
+
+  <form id="gate-form">
+
+    <!-- PROJECT INFO -->
+    <div class="section">
+      <div class="section-header"><div class="num" style="background: var(--accent)">i</div><h2>Project Information</h2></div>
+      <div class="section-body">
+        <div class="field-grid">
+          <div class="field">
+            <label>Project Name <span class="req">*</span></label>
+            <input type="text" name="project_name" required placeholder="Project / customer name">
+          </div>
+          <div class="field">
+            <label>Intake ID</label>
+            <input type="text" name="intake_ref" placeholder="e.g. INT-2026-4821">
+          </div>
+          <div class="field">
+            <label>Gate Review Date <span class="req">*</span></label>
+            <input type="date" name="gate_date" id="gate_date" required>
+          </div>
+          <div class="field">
+            <label>Gate Review Facilitator</label>
+            <input type="text" name="facilitator" placeholder="Name of person running this review">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GATE SELECTOR -->
+    <div style="margin-bottom: 8px; font-size: 13px; font-weight: 600; color: var(--muted2);">Select Gate</div>
+    <div class="gate-tabs">
+      <div class="gate-tab active" onclick="selectGate(1, this)">Gate 1 — SOW Freeze</div>
+      <div class="gate-tab" onclick="selectGate(2, this)">Gate 2 — Design Freeze</div>
+      <div class="gate-tab" onclick="selectGate(3, this)">Gate 3 — Site Readiness</div>
+    </div>
+    <input type="hidden" name="gate_number" id="gate_number" value="1">
+
+    <!-- GATE 1: SOW FREEZE -->
+    <div class="gate-panel active" id="gate-1">
+      <div class="section">
+        <div class="section-header"><div class="num">1</div><h2>Gate 1 — SOW Freeze Checklist</h2></div>
+        <div class="section-body">
+          <p style="font-size: 14px; color: var(--muted2); margin-bottom: 18px;">No contract is issued without this gate passing. All blocker items must be confirmed.</p>
+          <div class="checklist">
+            <div class="check-item blocker">
+              <input type="checkbox" id="g1-1" name="g1_sw_feasibility">
+              <div class="check-body">
+                <label class="check-label" for="g1-1">Software Lead has reviewed proposed scope and confirmed feasibility <span class="blocker-tag">Blocker</span></label>
+                <div class="check-desc">Written or documented — not a verbal acknowledgment.</div>
+              </div>
+            </div>
+            <div class="check-item blocker">
+              <input type="checkbox" id="g1-2" name="g1_controls_feasibility">
+              <div class="check-body">
+                <label class="check-label" for="g1-2">Controls Lead has reviewed hardware/software integration surface and confirmed feasibility <span class="blocker-tag">Blocker</span></label>
+                <div class="check-desc">PLC scope, low-voltage scope, and integration dependencies reviewed.</div>
+              </div>
+            </div>
+            <div class="check-item blocker">
+              <input type="checkbox" id="g1-3" name="g1_estimate">
+              <div class="check-body">
+                <label class="check-label" for="g1-3">High-level effort estimate provided by SW Lead and Controls Lead <span class="blocker-tag">Blocker</span></label>
+                <div class="check-desc">Estimate must come from technical leads — not from Sales or PM assumptions.</div>
+              </div>
+            </div>
+            <div class="check-item blocker">
+              <input type="checkbox" id="g1-4" name="g1_type">
+              <div class="check-body">
+                <label class="check-label" for="g1-4">Project type classified (Greenfield / Recontrol / Minor Upgrade) <span class="blocker-tag">Blocker</span></label>
+                <div class="check-desc">Classification drives lead time expectations and resource planning.</div>
+              </div>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="g1-5" name="g1_risks">
+              <div class="check-body">
+                <label class="check-label" for="g1-5">Known constraints, risks, and dependencies documented</label>
+                <div class="check-desc">Third-party dependencies, legacy system unknowns, or timeline risks noted.</div>
+              </div>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="g1-6" name="g1_intake">
+              <div class="check-body">
+                <label class="check-label" for="g1-6">Project Intake Form completed and signed</label>
+                <div class="check-desc">Intake ID should be referenced above.</div>
+              </div>
+            </div>
+          </div>
+          <div class="field" style="margin-top: 18px;">
+            <label>Open Items / Notes</label>
+            <textarea name="g1_notes" rows="2" placeholder="Any items that are incomplete, waived, or require follow-up before contract execution."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GATE 2: DESIGN FREEZE -->
+    <div class="gate-panel" id="gate-2">
+      <div class="section">
+        <div class="section-header"><div class="num">2</div><h2>Gate 2 — Design Freeze Checklist</h2></div>
+        <div class="section-body">
+          <p style="font-size: 14px; color: var(--muted2); margin-bottom: 18px;">No build begins until this gate passes. All blocker items must be confirmed.</p>
+          <div class="checklist">
+            <div class="check-item blocker">
+              <input type="checkbox" id="g2-1" name="g2_fsd">
+              <div class="check-body">
+                <label class="check-label" for="g2-1">Functional Specification Document (FSD) baselined and signed by TPM and SW Lead <span class="blocker-tag">Blocker</span></label>
+                <div class="check-desc">FSD is the contract between requirements and build. No baseline = no build.</div>
+              </div>
+            </div>
+            <div class="check-item blocker">
+              <input type="checkbox" id="g2-2" name="g2_hi">
+              <div class="check-body">
+                <label class="check-label" for="g2-2">Host Interface (HI) document baselined and signed <span class="blocker-tag">Blocker</span></label>
+                <div class="check-desc">Integration surface with customer or third-party systems is defined and agreed.</div>
+              </div>
+            </div>
+            <div class="check-item blocker">
+              <input type="checkbox" id="g2-3" name="g2_arch">
+              <div class="check-body">
+                <label class="check-label" for="g2-3">Software architecture reviewed and approved by SW Lead <span class="blocker-tag">Blocker</span></label>
+                <div class="check-desc">Technical approach, data model, and integration patterns defined before build begins.</div>
+              </div>
+            </div>
+            <div class="check-item blocker">
+              <input type="checkbox" id="g2-4" name="g2_cr_process">
+              <div class="check-body">
+                <label class="check-label" for="g2-4">Change Request process communicated to customer and internal teams <span class="blocker-tag">Blocker</span></label>
+                <div class="check-desc">All parties understand that post-freeze changes require a formal CR.</div>
+              </div>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="g2-5" name="g2_env">
+              <div class="check-body">
+                <label class="check-label" for="g2-5">Development and test environments provisioned</label>
+                <div class="check-desc">Build cannot start without a working development environment.</div>
+              </div>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="g2-6" name="g2_test_plan">
+              <div class="check-body">
+                <label class="check-label" for="g2-6">Test plan and acceptance criteria defined</label>
+                <div class="check-desc">How will we know when this is done? Acceptance criteria defined before build starts.</div>
+              </div>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="g2-7" name="g2_resources">
+              <div class="check-body">
+                <label class="check-label" for="g2-7">Build resources confirmed and scheduled</label>
+                <div class="check-desc">Named developers assigned, schedule locked, competing commitments resolved.</div>
+              </div>
+            </div>
+          </div>
+          <div class="field" style="margin-top: 18px;">
+            <label>Open Items / Notes</label>
+            <textarea name="g2_notes" rows="2" placeholder="Incomplete items, waivers, or follow-up required."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GATE 3: SITE READINESS -->
+    <div class="gate-panel" id="gate-3">
+      <div class="section">
+        <div class="section-header"><div class="num">3</div><h2>Gate 3 — Site Readiness Checklist</h2></div>
+        <div class="section-body">
+          <p style="font-size: 14px; color: var(--muted2); margin-bottom: 18px;">No travel approved. No commissioning begins. All blocker items must be confirmed.</p>
+          <div class="checklist">
+            <div class="check-item blocker">
+              <input type="checkbox" id="g3-1" name="g3_sw_ready">
+              <div class="check-body">
+                <label class="check-label" for="g3-1">Software Lead confirms software is deployment-ready for site <span class="blocker-tag">Blocker</span></label>
+                <div class="check-desc">All FSD-in-scope features complete, tested, and signed off in staging.</div>
+              </div>
+            </div>
+            <div class="check-item blocker">
+              <input type="checkbox" id="g3-2" name="g3_controls_ready">
+              <div class="check-body">
+                <label class="check-label" for="g3-2">Controls Lead confirms PLC software and controls are ready for commissioning <span class="blocker-tag">Blocker</span></label>
+                <div class="check-desc">PLC programs tested, I/O mapping verified, controls documentation current.</div>
+              </div>
+            </div>
+            <div class="check-item blocker">
+              <input type="checkbox" id="g3-3" name="g3_open_crs">
+              <div class="check-body">
+                <label class="check-label" for="g3-3">All approved CRs are either complete or explicitly deferred post-go-live with customer sign-off <span class="blocker-tag">Blocker</span></label>
+                <div class="check-desc">No unapproved open scope. Every CR has a status.</div>
+              </div>
+            </div>
+            <div class="check-item blocker">
+              <input type="checkbox" id="g3-4" name="g3_site_infra">
+              <div class="check-body">
+                <label class="check-label" for="g3-4">Customer site infrastructure confirmed ready (network, power, hardware installation) <span class="blocker-tag">Blocker</span></label>
+                <div class="check-desc">PM has confirmed with customer. We do not travel to an unready site.</div>
+              </div>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="g3-5" name="g3_training">
+              <div class="check-body">
+                <label class="check-label" for="g3-5">Customer training plan defined and scheduled</label>
+                <div class="check-desc">End-user training, admin training, and go-live support plan agreed with customer.</div>
+              </div>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="g3-6" name="g3_support">
+              <div class="check-body">
+                <label class="check-label" for="g3-6">Hypercare / go-live support plan in place</label>
+                <div class="check-desc">Who is on-call, escalation path, defect SLA, and support window defined.</div>
+              </div>
+            </div>
+            <div class="check-item">
+              <input type="checkbox" id="g3-7" name="g3_rollback">
+              <div class="check-body">
+                <label class="check-label" for="g3-7">Rollback / contingency plan documented</label>
+                <div class="check-desc">If go-live fails, what is the recovery plan? Customer informed of contingency.</div>
+              </div>
+            </div>
+          </div>
+          <div class="field" style="margin-top: 18px;">
+            <label>Open Items / Notes</label>
+            <textarea name="g3_notes" rows="2" placeholder="Incomplete items, deferred CRs, or follow-up required."></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GATE OUTCOME -->
+    <div class="section">
+      <div class="section-header"><div class="num" style="background: var(--green)">✔</div><h2>Gate Outcome</h2></div>
+      <div class="section-body">
+        <div class="field" style="margin-bottom: 18px;">
+          <label>Gate Decision <span class="req">*</span></label>
+          <div class="outcome-row">
+            <label class="outcome-btn">
+              <input type="radio" name="gate_outcome" value="PASS"> ✔ PASS — All blockers cleared. Proceed.
+            </label>
+            <label class="outcome-btn fail">
+              <input type="radio" name="gate_outcome" value="FAIL"> ✘ FAIL — Blockers remain. Do not proceed.
+            </label>
+            <label class="outcome-btn defer">
+              <input type="radio" name="gate_outcome" value="CONDITIONAL"> ⚠ CONDITIONAL — Proceed with documented exceptions.
+            </label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Exception / Conditional Bypass Justification</label>
+          <textarea name="exception_justification" rows="3" placeholder="If CONDITIONAL or FAIL with override: document what is being waived, why, who owns the risk, and what remediation is required before the next milestone."></textarea>
+        </div>
+        <div class="field" style="margin-top: 8px;">
+          <label>Leadership Approval for Override (if applicable)</label>
+          <input type="text" name="override_approver" placeholder="Name of leadership approver if gate is conditionally passed or bypassed">
+        </div>
+        <hr class="divider">
+        <div class="sig-row">
+          <div class="sig-block">
+            <div class="role">SW Lead Sign-Off</div>
+            <input type="text" name="sig_sw" placeholder="Full name">
+            <input type="date" name="sig_sw_date">
+          </div>
+          <div class="sig-block">
+            <div class="role">Controls Lead Sign-Off</div>
+            <input type="text" name="sig_controls" placeholder="Full name">
+            <input type="date" name="sig_controls_date">
+          </div>
+          <div class="sig-block">
+            <div class="role">TPM Sign-Off</div>
+            <input type="text" name="sig_tpm" placeholder="Full name">
+            <input type="date" name="sig_tpm_date">
+          </div>
+        </div>
+        <hr class="divider">
+        <div class="submit-row">
+          <button type="button" class="btn btn-secondary" onclick="window.print()">Print / Save PDF</button>
+          <button type="submit" class="btn btn-primary">Submit via Email</button>
+        </div>
+      </div>
+    </div>
+
+  </form>
+</div>
+
+<script>
+  const gateId = 'GATE-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random() * 9000) + 1000);
+  document.getElementById('doc-id').textContent = gateId;
+  document.getElementById('gate_date').value = new Date().toISOString().slice(0,10);
+
+  function selectGate(n, el) {
+    document.querySelectorAll('.gate-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.gate-panel').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('gate-' + n).classList.add('active');
+    document.getElementById('gate_number').value = n;
+  }
+
+  document.getElementById('gate-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const data = new FormData(this);
+    const to = 'your-team@yourcompany.com'; // ← REPLACE
+    const gn = data.get('gate_number');
+    const gateNames = { '1': 'SOW Freeze', '2': 'Design Freeze', '3': 'Site Readiness' };
+
+    const checkboxes = (prefix) => {
+      const items = [];
+      this.querySelectorAll(`input[type="checkbox"][name^="${prefix}"]`).forEach(cb => {
+        items.push((cb.checked ? '[✔] ' : '[ ] ') + (cb.closest('.check-item').querySelector('.check-label').textContent.trim()));
+      });
+      return items.join('\n');
+    };
+
+    const lines = [
+      '=== GATE SIGN-OFF CHECKLIST ===',
+      'Document ID: ' + gateId,
+      'Gate: ' + gn + ' — ' + (gateNames[gn] || ''),
+      'Project: ' + (data.get('project_name') || ''),
+      'Intake Ref: ' + (data.get('intake_ref') || ''),
+      'Review Date: ' + (data.get('gate_date') || ''),
+      'Facilitator: ' + (data.get('facilitator') || ''),
+      '',
+      '--- CHECKLIST ---',
+      checkboxes('g' + gn + '_'),
+      '',
+      'Notes: ' + (data.get('g' + gn + '_notes') || ''),
+      '',
+      '--- OUTCOME ---',
+      'Decision: ' + (data.get('gate_outcome') || ''),
+      'Exception Justification: ' + (data.get('exception_justification') || ''),
+      'Override Approver: ' + (data.get('override_approver') || ''),
+      '',
+      '--- SIGN-OFFS ---',
+      'SW Lead: ' + (data.get('sig_sw') || '') + ' — ' + (data.get('sig_sw_date') || ''),
+      'Controls Lead: ' + (data.get('sig_controls') || '') + ' — ' + (data.get('sig_controls_date') || ''),
+      'TPM: ' + (data.get('sig_tpm') || '') + ' — ' + (data.get('sig_tpm_date') || ''),
+    ];
+
+    const subject = encodeURIComponent('[Gate ' + gn + ' ' + (data.get('gate_outcome') || '') + '] ' + (data.get('project_name') || 'Project') + ' — ' + gateId);
+    const body = encodeURIComponent(lines.join('\n'));
+    window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+  });
+</script>
+</body>
+</html>

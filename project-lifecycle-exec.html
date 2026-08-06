@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Software Delivery Governance — Executive Working Session</title>
+<style>
+  :root {
+    --bg: #0b0d13;
+    --surface: #13161f;
+    --surface2: #1c2030;
+    --border: #252a3d;
+    --accent: #3b82f6;
+    --accent-dim: #1d4ed8;
+    --red: #ef4444;
+    --orange: #f97316;
+    --yellow: #eab308;
+    --green: #22c55e;
+    --purple: #8b5cf6;
+    --text: #f1f5f9;
+    --muted: #64748b;
+    --muted2: #94a3b8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* TOP BAR */
+  #topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 28px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    background: var(--surface);
+  }
+  #topbar-left { display: flex; align-items: center; gap: 12px; }
+  .tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 4px;
+    background: var(--accent-dim);
+    color: #93c5fd;
+  }
+  .tag.red { background: #7f1d1d; color: #fca5a5; }
+  .tag.yellow { background: #713f12; color: #fde68a; }
+  .tag.green { background: #14532d; color: #86efac; }
+  #slide-label { font-size: 12px; color: var(--muted2); font-weight: 500; }
+  #slide-counter { font-size: 12px; color: var(--muted); }
+
+  /* PROGRESS */
+  #progress-bar { height: 2px; background: var(--border); flex-shrink: 0; }
+  #progress-fill { height: 100%; background: var(--accent); transition: width .3s ease; }
+
+  /* DECK */
+  #deck { flex: 1; position: relative; overflow: hidden; }
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 52px 72px;
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity .25s ease, transform .25s ease;
+    pointer-events: none;
+  }
+  .slide.active {
+    opacity: 1; transform: translateX(0); pointer-events: all;
+  }
+  .slide.exit-left {
+    opacity: 0; transform: translateX(-40px);
+  }
+
+  /* CENTERED SLIDE VARIANT */
+  .slide.center { align-items: center; text-align: center; }
+
+  /* TYPOGRAPHY */
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .eyebrow.red { color: var(--red); }
+  .eyebrow.orange { color: var(--orange); }
+  .eyebrow.yellow { color: var(--yellow); }
+  .eyebrow.green { color: var(--green); }
+  .eyebrow.purple { color: var(--purple); }
+
+  h1 { font-size: 52px; font-weight: 800; line-height: 1.1; max-width: 900px; }
+  h2 { font-size: 36px; font-weight: 700; line-height: 1.2; max-width: 820px; margin-bottom: 28px; }
+  h3 { font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+  .sub {
+    font-size: 18px;
+    color: var(--muted2);
+    max-width: 700px;
+    line-height: 1.6;
+    margin-top: 12px;
+  }
+  .presenter { font-size: 13px; color: var(--muted); margin-top: 36px; letter-spacing: .05em; }
+
+  /* DIVIDER */
+  .rule { width: 48px; height: 3px; background: var(--accent); border-radius: 2px; margin: 18px 0; }
+  .rule.red { background: var(--red); }
+  .rule.orange { background: var(--orange); }
+  .rule.green { background: var(--green); }
+
+  /* CARDS */
+  .cards { display: flex; gap: 20px; width: 100%; flex-wrap: wrap; }
+  .card {
+    flex: 1;
+    min-width: 200px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px 26px;
+  }
+  .card .num {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--red);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .card .num.orange { color: var(--orange); }
+  .card .num.yellow { color: var(--yellow); }
+  .card .num.blue { color: var(--accent); }
+  .card .num.green { color: var(--green); }
+  .card p { font-size: 14px; color: var(--muted2); line-height: 1.5; }
+  .card h3 { font-size: 16px; }
+
+  /* LIST */
+  ul.clean { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+  ul.clean li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--muted2);
+  }
+  ul.clean li .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+    margin-top: 7px;
+  }
+  ul.clean li .dot.red { background: var(--red); }
+  ul.clean li .dot.orange { background: var(--orange); }
+  ul.clean li .dot.yellow { background: var(--yellow); }
+  ul.clean li .dot.green { background: var(--green); }
+  ul.clean li strong { color: var(--text); }
+
+  /* NUMBERED LIST */
+  ol.steps { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+  ol.steps li {
+    display: flex; align-items: flex-start; gap: 18px;
+    font-size: 16px; line-height: 1.5; color: var(--muted2);
+  }
+  ol.steps li .n {
+    font-size: 22px; font-weight: 800; color: var(--accent);
+    min-width: 36px; line-height: 1;
+  }
+  ol.steps li strong { color: var(--text); display: block; margin-bottom: 2px; }
+
+  /* TWO-COL */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; width: 100%; }
+  .col-block { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 24px 26px; }
+  .col-block h3 { font-size: 15px; margin-bottom: 12px; color: var(--muted2); text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
+  .col-block ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .col-block ul li { font-size: 15px; color: var(--muted2); line-height: 1.4; padding-left: 14px; position: relative; }
+  .col-block ul li::before { content: '—'; position: absolute; left: 0; color: var(--border); }
+
+  /* STAGE ROW */
+  .stage-row {
+    display: flex; flex-direction: column; gap: 10px; width: 100%;
+  }
+  .stage-item {
+    display: flex; align-items: center; gap: 18px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px 20px;
+  }
+  .stage-item .badge {
+    font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 5px; background: var(--accent-dim); color: #93c5fd;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .stage-item .badge.pre { background: #312e81; color: #a5b4fc; }
+  .stage-item .badge.gate { background: #7f1d1d; color: #fca5a5; }
+  .stage-item .badge.delivery { background: #14532d; color: #86efac; }
+  .stage-item .title { font-size: 15px; font-weight: 600; min-width: 200px; flex-shrink: 0; }
+  .stage-item .owner { font-size: 13px; color: var(--muted); }
+  .stage-item .sw { font-size: 13px; color: var(--accent); margin-left: auto; white-space: nowrap; }
+
+  /* RULE CALLOUT */
+  .rule-callout {
+    background: var(--surface2);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 10px 10px 0;
+    padding: 28px 32px;
+    width: 100%;
+    margin-top: 8px;
+  }
+  .rule-callout.red { border-color: var(--red); }
+  .rule-callout.orange { border-color: var(--orange); }
+  .rule-callout.green { border-color: var(--green); }
+  .rule-callout .rule-num { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .12em; margin-bottom: 8px; }
+  .rule-callout .rule-text { font-size: 20px; font-weight: 600; line-height: 1.4; color: var(--text); }
+  .rule-callout .rule-why { font-size: 14px; color: var(--muted2); margin-top: 10px; line-height: 1.5; }
+
+  /* CONSEQUENCE BOX */
+  .consequence {
+    background: #1c0a0a;
+    border: 1px solid #7f1d1d;
+    border-radius: 10px;
+    padding: 22px 26px;
+    width: 100%;
+  }
+  .consequence .label { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--red); margin-bottom: 8px; }
+  .consequence p { font-size: 15px; color: #fca5a5; line-height: 1.6; }
+
+  /* ASK BOX */
+  .ask-box {
+    background: #0c1a2e;
+    border: 1px solid #1d4ed8;
+    border-radius: 10px;
+    padding: 22px 26px;
+    width: 100%;
+  }
+  .ask-box .label { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+  .ask-box p { font-size: 15px; color: #93c5fd; line-height: 1.6; }
+
+  /* RACI MINI */
+  table.raci { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.raci th { background: var(--surface2); color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; font-size: 11px; padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  table.raci td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--muted2); vertical-align: top; }
+  table.raci tr:last-child td { border-bottom: none; }
+  .r { color: var(--red); font-weight: 700; }
+  .a { color: var(--orange); font-weight: 700; }
+  .c { color: var(--accent); font-weight: 600; }
+  .i { color: var(--muted); }
+
+  /* GATE CHECKLIST */
+  .gate-items { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+  .gate-item {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 16px; font-size: 14px; color: var(--muted2);
+  }
+  .gate-item .check { color: var(--green); font-size: 16px; flex-shrink: 0; }
+  .gate-item .block { color: var(--red); font-size: 16px; flex-shrink: 0; }
+
+  /* FINAL ASKS */
+  .ask-items { display: flex; flex-direction: column; gap: 14px; width: 100%; }
+  .ask-item {
+    display: flex; align-items: flex-start; gap: 18px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 18px 22px;
+  }
+  .ask-item .ask-n { font-size: 28px; font-weight: 800; color: var(--accent); line-height: 1; min-width: 40px; }
+  .ask-item .ask-body strong { font-size: 15px; color: var(--text); display: block; margin-bottom: 4px; }
+  .ask-item .ask-body p { font-size: 14px; color: var(--muted2); line-height: 1.5; }
+
+  /* NAV */
+  #nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 28px;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+    background: var(--surface);
+  }
+  #nav button {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--muted2); padding: 8px 20px;
+    border-radius: 6px; font-size: 13px; cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  #nav button:hover { background: var(--border); color: var(--text); }
+  #nav button:disabled { opacity: 0.3; cursor: default; }
+  #slide-info { font-size: 12px; color: var(--muted); text-align: center; line-height: 1.5; }
+
+  .wide { max-width: 100%; }
+  .mt { margin-top: 20px; }
+  .mt2 { margin-top: 32px; }
+  .full-w { width: 100%; }
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div id="topbar-left">
+    <span class="tag" id="slide-tag">OPENING</span>
+    <span id="slide-label">Software Delivery Governance</span>
+  </div>
+  <span id="slide-counter">1 / 20</span>
+</div>
+<div id="progress-bar"><div id="progress-fill" style="width:5%"></div></div>
+
+<div id="deck">
+
+<!-- ===== SLIDE 1: TITLE ===== -->
+<div class="slide center active" data-tag="BRIEFING" data-label="Software Delivery Governance">
+  <div class="eyebrow">Engineering Leadership — Working Session</div>
+  <h1>Software Delivery Is a Business Risk</h1>
+  <div class="rule"></div>
+  <p class="sub">An assessment of our current project intake model, its operational impact, and a proposed governance framework to correct it.</p>
+  <p class="presenter">Presented by: Principal Software Engineer &nbsp;|&nbsp; <span id="date-str"></span></p>
+</div>
+
+<!-- ===== SLIDE 2: PURPOSE ===== -->
+<div class="slide" data-tag="CONTEXT" data-label="Purpose of This Session">
+  <div class="eyebrow">Purpose</div>
+  <h2>Why We Are Here</h2>
+  <ul class="clean" style="max-width:740px">
+    <li><span class="dot orange"></span><span>Software and Controls teams consistently receive project scope <strong>after key commitments are already made</strong> — sometimes the week documents are due.</span></li>
+    <li><span class="dot orange"></span><span>We are <strong>not resourced for work we don't know is coming</strong>. Staffing, scheduling, and architecture decisions require lead time.</span></li>
+    <li><span class="dot orange"></span><span>The current model relies on informal communication — hallway conversations, last-minute emails, and institutional gossip.</span></li>
+    <li><span class="dot orange"></span><span>This session proposes a <strong>formal governance model</strong> with clear gates, role accountability, and mandatory software engagement points.</span></li>
+  </ul>
+  <div class="mt2">
+    <div class="ask-box" style="max-width:740px">
+      <div class="label">Objective</div>
+      <p>Leave this session with leadership alignment on a process that treats software readiness as a delivery prerequisite — not an afterthought.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SLIDE 3: CURRENT STATE ===== -->
+<div class="slide" data-tag="DIAGNOSIS" data-label="Current State Assessment">
+  <div class="eyebrow red">Current State</div>
+  <h2>How Projects Actually Flow Today</h2>
+  <div class="cards" style="margin-top: 16px;">
+    <div class="card">
+      <div class="num">1.</div>
+      <h3>Sales closes the deal</h3>
+      <p>Scope and commitments made without software or controls input. Feasibility is assumed, not confirmed.</p>
+    </div>
+    <div class="card">
+      <div class="num orange">2.</div>
+      <h3>SOW is written</h3>
+      <p>Key functions are already agreed upon. Software is occasionally consulted informally — if at all.</p>
+    </div>
+    <div class="card">
+      <div class="num">3.</div>
+      <h3>Project kicks off</h3>
+      <p>Software and Controls find out about scope. FSD and HI docs are due. The scramble begins.</p>
+    </div>
+    <div class="card">
+      <div class="num">4.</div>
+      <h3>We make it work</h3>
+      <p>Teams absorb undocumented scope, unplanned customizations, and resource gaps. Delivery suffers.</p>
+    </div>
+  </div>
+  <div class="consequence mt" style="max-width:100%">
+    <div class="label">Result</div>
+    <p>Reactive delivery, compressed timelines, unplanned scope, and developer burnout — on every project.</p>
+  </div>
+</div>
+
+<!-- ===== SLIDE 4: ROOT CAUSE ===== -->
+<div class="slide" data-tag="DIAGNOSIS" data-label="Root Cause Analysis">
+  <div class="eyebrow red">Root Cause</div>
+  <h2>This Is a Structural Problem, Not a People Problem</h2>
+  <ul class="clean" style="max-width: 760px; margin-top: 8px;">
+    <li><span class="dot red"></span><span><strong>No defined engagement gates.</strong> Software and Controls have no formal point at which they are required to participate. Involvement is discretionary.</span></li>
+    <li><span class="dot red"></span><span><strong>Accountability is diffuse.</strong> We have PMs, TPMs, KAMs, and SAs — and no single person owns the technical commitment before a contract is signed.</span></li>
+    <li><span class="dot red"></span><span><strong>The SOW is written without a technical baseline.</strong> Scope is committed commercially before it is validated technically.</span></li>
+    <li><span class="dot red"></span><span><strong>No intake process.</strong> Projects enter our system without a standardized assessment of type, complexity, or resource requirement.</span></li>
+    <li><span class="dot red"></span><span><strong>Customizations are untracked.</strong> Feature additions, new screens, and configuration changes are absorbed informally with no change control.</span></li>
+  </ul>
+</div>
+
+<!-- ===== SLIDE 5: SCOPE OF PROBLEM ===== -->
+<div class="slide" data-tag="DIAGNOSIS" data-label="Scope of Impact">
+  <div class="eyebrow orange">Impact</div>
+  <h2>Where This Hurts the Business</h2>
+  <div class="two-col" style="margin-top: 8px;">
+    <div class="col-block">
+      <h3>Delivery Risk</h3>
+      <ul>
+        <li>Compressed design and build windows</li>
+        <li>Integration conflicts discovered late</li>
+        <li>Site readiness failures caused by upstream gaps</li>
+        <li>Go-live delays attributed to software</li>
+      </ul>
+    </div>
+    <div class="col-block">
+      <h3>Resource Risk</h3>
+      <ul>
+        <li>Cannot staff what we don't know is coming</li>
+        <li>Engineers pulled from active work to cover unplanned scope</li>
+        <li>No pipeline visibility for hiring or contractor planning</li>
+        <li>Burnout from perpetual reactive mode</li>
+      </ul>
+    </div>
+    <div class="col-block">
+      <h3>Financial Risk</h3>
+      <ul>
+        <li>Untracked customizations delivered for free</li>
+        <li>Scope creep absorbed silently — not billed</li>
+        <li>Cost overruns not attributed to their source</li>
+        <li>No mechanism to escalate out-of-scope work</li>
+      </ul>
+    </div>
+    <div class="col-block">
+      <h3>Organizational Risk</h3>
+      <ul>
+        <li>No institutional documentation — oral tradition only</li>
+        <li>Key knowledge siloed in individuals, not process</li>
+        <li>Onboarding new team members into chaos</li>
+        <li>Sales over-promises with no correction mechanism</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SLIDE 6: THE FIX — OVERVIEW ===== -->
+<div class="slide" data-tag="PROPOSAL" data-label="Proposed Governance Framework">
+  <div class="eyebrow">Proposal</div>
+  <h2>A Governed Lifecycle with Mandatory Engagement Points</h2>
+  <p class="sub" style="margin-bottom: 24px;">The fix is not more meetings. It is a defined process with gates that cannot be bypassed — and clear ownership at each stage.</p>
+  <div class="two-col">
+    <div class="col-block">
+      <h3>What Changes</h3>
+      <ul>
+        <li>Software engaged at Opportunity Qualification — not at kickoff</li>
+        <li>No SOW issued without Software + Controls sign-off</li>
+        <li>Formal intake for every new project</li>
+        <li>All customizations processed through Change Request</li>
+        <li>One accountable owner per stage</li>
+      </ul>
+    </div>
+    <div class="col-block">
+      <h3>What Doesn't Change</h3>
+      <ul>
+        <li>Sales still owns the customer relationship</li>
+        <li>PM still owns the delivery schedule</li>
+        <li>SA still does on-site configuration work</li>
+        <li>Software and Controls still build and deliver</li>
+        <li>We are adding structure — not replacing people</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SLIDE 7: PROJECT TYPES ===== -->
+<div class="slide" data-tag="FRAMEWORK" data-label="Project Type Classification">
+  <div class="eyebrow">Framework</div>
+  <h2>Three Project Archetypes — Each Requires Different Lead Time</h2>
+  <div class="cards" style="margin-top: 16px; align-items: stretch;">
+    <div class="card" style="border-color: var(--purple);">
+      <div class="num" style="color: var(--purple);">GF</div>
+      <h3>Greenfield</h3>
+      <p style="margin-bottom: 12px;">New system, new site. Highest complexity. Full lifecycle applies. No assumptions about reuse.</p>
+      <div style="font-size: 13px; color: var(--purple);">⟶ Software engaged: Opportunity stage<br>Pre-SOW lead time: 4–8 weeks</div>
+    </div>
+    <div class="card" style="border-color: var(--orange);">
+      <div class="num orange">RC</div>
+      <h3>Recontrol / Major Upgrade</h3>
+      <p style="margin-bottom: 12px;">Existing system, major scope change. Legacy constraints apply. Architecture review required.</p>
+      <div style="font-size: 13px; color: var(--orange);">⟶ Software engaged: Opportunity stage<br>Pre-SOW lead time: 3–6 weeks</div>
+    </div>
+    <div class="card" style="border-color: var(--accent);">
+      <div class="num blue">MU</div>
+      <h3>Minor Upgrade / Add-On</h3>
+      <p style="margin-bottom: 12px;">Targeted change to existing system. Lower risk but still requires formal intake and CR tracking.</p>
+      <div style="font-size: 13px; color: var(--accent);">⟶ Software engaged: At intake<br>Pre-SOW lead time: 1–2 weeks</div>
+    </div>
+  </div>
+  <div class="ask-box full-w mt" style="margin-top: 16px;">
+    <div class="label">Note on Customizations</div>
+    <p>Any project can have customizations added at any time. All customizations — new screens, features, integrations, UI changes — require a formal Change Request before work begins. No CR = no work.</p>
+  </div>
+</div>
+
+<!-- ===== SLIDE 8: LIFECYCLE STAGES ===== -->
+<div class="slide" data-tag="FRAMEWORK" data-label="10-Stage Lifecycle">
+  <div class="eyebrow">Framework</div>
+  <h2>The 10-Stage Lifecycle</h2>
+  <div class="stage-row" style="margin-top: 8px;">
+    <div class="stage-item"><span class="badge pre">PRE-SALE</span><span class="title">1. Opportunity Qualification</span><span class="owner">DRI: Sales / KAM</span><span class="sw">SW: Feasibility input required</span></div>
+    <div class="stage-item"><span class="badge pre">PRE-SALE</span><span class="title">2. Solution Shaping</span><span class="owner">DRI: SA / TPM</span><span class="sw">SW: Scope + effort estimate required</span></div>
+    <div class="stage-item"><span class="badge gate">GATE 1</span><span class="title">3. SOW Freeze</span><span class="owner">DRI: TPM</span><span class="sw">SW + Controls sign-off required to proceed</span></div>
+    <div class="stage-item"><span class="badge">INTAKE</span><span class="title">4. Project Intake</span><span class="owner">DRI: TPM</span><span class="sw">SW: Resource assignment + schedule</span></div>
+    <div class="stage-item"><span class="badge">DISCOVERY</span><span class="title">5. Discovery / Requirements</span><span class="owner">DRI: TPM / SA</span><span class="sw">SW: FSD baseline required</span></div>
+    <div class="stage-item"><span class="badge gate">GATE 2</span><span class="title">6. Design / Planning Freeze</span><span class="owner">DRI: SW Lead</span><span class="sw">Architecture signed off before build</span></div>
+    <div class="stage-item"><span class="badge delivery">BUILD</span><span class="title">7. Build / Integration</span><span class="owner">DRI: SW Lead / Controls</span><span class="sw">SW: Active — all CR changes gated here</span></div>
+    <div class="stage-item"><span class="badge gate">GATE 3</span><span class="title">8. Site Readiness</span><span class="owner">DRI: PM</span><span class="sw">SW sign-off required before travel approved</span></div>
+    <div class="stage-item"><span class="badge delivery">DELIVERY</span><span class="title">9. Go-Live / Hypercare</span><span class="owner">DRI: PM / TPM</span><span class="sw">SW: On-call support, defect SLA active</span></div>
+    <div class="stage-item"><span class="badge delivery">CLOSE</span><span class="title">10. Project Closeout</span><span class="owner">DRI: TPM</span><span class="sw">Retrospective + lessons logged</span></div>
+  </div>
+</div>
+
+<!-- ===== SLIDE 9: ROLE ACCOUNTABILITY ===== -->
+<div class="slide" data-tag="FRAMEWORK" data-label="Role Accountability Matrix">
+  <div class="eyebrow">Framework</div>
+  <h2>Role Accountability — Who Owns What</h2>
+  <table class="raci" style="margin-top: 12px;">
+    <thead>
+      <tr><th>Stage</th><th>PM</th><th>TPM</th><th>SA</th><th>SW Lead</th><th>Controls</th><th>Sales/KAM</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Opportunity Qual.</td><td class="c">C</td><td class="c">C</td><td class="c">C</td><td class="c">C</td><td class="c">C</td><td class="r">R/A</td></tr>
+      <tr><td>Solution Shaping</td><td class="c">C</td><td class="r">R</td><td class="r">R</td><td class="a">A</td><td class="a">A</td><td class="i">I</td></tr>
+      <tr><td>SOW Freeze (Gate 1)</td><td class="c">C</td><td class="r">R/A</td><td class="c">C</td><td class="a">A ✎</td><td class="a">A ✎</td><td class="i">I</td></tr>
+      <tr><td>Project Intake</td><td class="r">R</td><td class="r">R</td><td class="c">C</td><td class="a">A</td><td class="a">A</td><td class="i">I</td></tr>
+      <tr><td>Discovery / FSD</td><td class="i">I</td><td class="r">R/A</td><td class="r">R</td><td class="a">A ✎</td><td class="a">A ✎</td><td class="i">I</td></tr>
+      <tr><td>Build / Integration</td><td class="i">I</td><td class="c">C</td><td class="c">C</td><td class="r">R/A</td><td class="r">R/A</td><td class="i">I</td></tr>
+      <tr><td>Site Readiness (Gate 3)</td><td class="r">R/A</td><td class="c">C</td><td class="r">R</td><td class="a">A ✎</td><td class="a">A ✎</td><td class="i">I</td></tr>
+      <tr><td>Go-Live / Closeout</td><td class="r">R</td><td class="r">R</td><td class="c">C</td><td class="c">C</td><td class="c">C</td><td class="c">C</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size: 12px; color: var(--muted); margin-top: 12px;"><span class="r">R</span> = Responsible &nbsp;|&nbsp; <span class="a">A</span> = Accountable &nbsp;|&nbsp; <span class="c">C</span> = Consulted &nbsp;|&nbsp; <span class="i">I</span> = Informed &nbsp;|&nbsp; ✎ = Sign-off required</p>
+</div>
+
+<!-- ===== SLIDE 10: THE 3 HARD GATES ===== -->
+<div class="slide" data-tag="GOVERNANCE" data-label="The Three Non-Bypass Gates">
+  <div class="eyebrow red">Governance</div>
+  <h2>Three Gates That Cannot Be Bypassed</h2>
+  <ul class="clean" style="max-width: 760px; margin-top: 8px; gap: 24px;">
+    <li>
+      <span class="dot red"></span>
+      <span>
+        <strong>Gate 1 — SOW Freeze:</strong> No contract is issued without written sign-off from Software Lead and Controls Lead on scope, effort estimate, and feasibility. A sales commitment without technical validation is a liability, not a win.
+      </span>
+    </li>
+    <li>
+      <span class="dot orange"></span>
+      <span>
+        <strong>Gate 2 — Design Freeze:</strong> No build begins without a baselined FSD and approved architecture. Scope that is not documented does not get built. Changes after this point require a formal Change Request.
+      </span>
+    </li>
+    <li>
+      <span class="dot yellow"></span>
+      <span>
+        <strong>Gate 3 — Site Readiness:</strong> No travel is approved, no commissioning begins, without Software and Controls sign-off that systems are ready. Site failures caused by software unreadiness are preventable and unacceptable.
+      </span>
+    </li>
+  </ul>
+  <div class="consequence full-w mt">
+    <div class="label">If a Gate Is Skipped</div>
+    <p>The bypass is a documented exception — approved by leadership, with risk ownership assigned. Skipping a gate does not mean the risk disappears. It means someone owns the risk explicitly.</p>
+  </div>
+</div>
+
+<!-- ===== SLIDE 11: RECONCILIATION LOOPS ===== -->
+<div class="slide" data-tag="GOVERNANCE" data-label="Agile Reconciliation Loops">
+  <div class="eyebrow purple">Governance</div>
+  <h2>When Scope Changes Mid-Stream — Controlled Loops</h2>
+  <p class="sub" style="margin-bottom: 20px;">Projects rarely go in a straight line. The process accounts for this with defined reconciliation points — not ad-hoc rework.</p>
+  <div class="cards">
+    <div class="card" style="border-color: var(--red);">
+      <div class="num">A</div>
+      <h3>Feasibility Impasse</h3>
+      <p>Technical assessment contradicts proposed scope. Returns to Solution Shaping before SOW is issued.</p>
+    </div>
+    <div class="card" style="border-color: var(--orange);">
+      <div class="num orange">B</div>
+      <h3>Scope Inflation</h3>
+      <p>SOW draft reveals scope beyond original estimate. Returns for commercial re-alignment before contract.</p>
+    </div>
+    <div class="card" style="border-color: var(--yellow);">
+      <div class="num" style="color: var(--yellow);">C</div>
+      <h3>Requirements Gap</h3>
+      <p>Discovery reveals missing or conflicting requirements. Returns to customer for clarification before design freeze.</p>
+    </div>
+    <div class="card" style="border-color: var(--purple);">
+      <div class="num" style="color: var(--purple);">D</div>
+      <h3>Integration Conflict</h3>
+      <p>Build reveals hardware/software integration issue. Requires joint resolution — not silent workarounds.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SLIDE 12: CHANGE REQUESTS ===== -->
+<div class="slide" data-tag="GOVERNANCE" data-label="Change Request Process">
+  <div class="eyebrow orange">Governance</div>
+  <h2>Customizations Are Not Free — The Change Request Process</h2>
+  <p class="sub" style="margin-bottom: 20px;">Every project can receive customizations. Every customization must go through a CR before work begins. No exceptions.</p>
+  <div class="two-col">
+    <div class="col-block">
+      <h3>What Triggers a CR</h3>
+      <ul>
+        <li>New UI screen or component</li>
+        <li>New feature not in baselined FSD</li>
+        <li>Integration change post-design freeze</li>
+        <li>Configuration change with downstream impact</li>
+        <li>Any customer-requested modification post-SOW</li>
+      </ul>
+    </div>
+    <div class="col-block">
+      <h3>CR Requires</h3>
+      <ul>
+        <li>Written description of the change</li>
+        <li>SW Lead effort estimate</li>
+        <li>Impact assessment on timeline</li>
+        <li>Customer sign-off or internal approval</li>
+        <li>Commercial impact evaluated (billable or absorbed — documented either way)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="consequence full-w mt">
+    <div class="label">The Problem Today</div>
+    <p>Customizations are absorbed informally, delivered for free, and attributed to software "being slow." This ends. Undocumented work is not work we agreed to do.</p>
+  </div>
+</div>
+
+<!-- ===== SLIDE 13: GATE CHECKLIST EXAMPLE ===== -->
+<div class="slide" data-tag="GOVERNANCE" data-label="Gate 1 — SOW Freeze Checklist">
+  <div class="eyebrow red">Gate Checklist</div>
+  <h2>Gate 1: SOW Freeze — What Must Be True Before This Gate Passes</h2>
+  <div class="gate-items" style="margin-top: 12px;">
+    <div class="gate-item"><span class="check">✔</span> Software Lead has reviewed proposed scope and signed off on feasibility</div>
+    <div class="gate-item"><span class="check">✔</span> Controls Lead has reviewed hardware/software integration surface and signed off</div>
+    <div class="gate-item"><span class="check">✔</span> Project type classification confirmed (Greenfield / Recontrol / Minor Upgrade)</div>
+    <div class="gate-item"><span class="check">✔</span> High-level effort estimate provided by SW Lead and Controls Lead</div>
+    <div class="gate-item"><span class="check">✔</span> Known constraints, risks, and dependencies documented</div>
+    <div class="gate-item"><span class="block">✘</span> Gate fails if Software or Controls have not been consulted on scope</div>
+    <div class="gate-item"><span class="block">✘</span> Gate fails if effort estimate is missing or based solely on sales assumptions</div>
+    <div class="gate-item"><span class="block">✘</span> Gate fails if integration dependencies are unresolved</div>
+  </div>
+  <p style="font-size: 13px; color: var(--muted); margin-top: 14px;">Full checklists for all 6 gates exist in the reference document. This is one example.</p>
+</div>
+
+<!-- ===== SLIDE 14: NON-NEGOTIABLE RULES ===== -->
+<div class="slide" data-tag="GOVERNANCE" data-label="Non-Negotiable Operating Rules">
+  <div class="eyebrow red">Non-Negotiables</div>
+  <h2>Eight Rules. Not Guidelines.</h2>
+  <ul class="clean" style="max-width: 760px; margin-top: 8px;">
+    <li><span class="dot red"></span><span><strong>Software engagement is a gate, not a courtesy.</strong> No feasibility review = no SOW.</span></li>
+    <li><span class="dot red"></span><span><strong>No contract without technical sign-off.</strong> SW + Controls sign the SOW or the contract does not execute.</span></li>
+    <li><span class="dot orange"></span><span><strong>No build without a baselined FSD.</strong> Undocumented scope is not agreed scope.</span></li>
+    <li><span class="dot orange"></span><span><strong>No travel without site readiness sign-off.</strong> SW + Controls confirm readiness before commissioning begins.</span></li>
+    <li><span class="dot yellow"></span><span><strong>All customizations require a Change Request.</strong> No CR = no work. Verbal agreements are not work orders.</span></li>
+    <li><span class="dot yellow"></span><span><strong>One accountable DRI per stage.</strong> When accountability is shared, it is owned by no one.</span></li>
+    <li><span class="dot accent" style="background: var(--accent)"></span><span><strong>Retrospectives are mandatory.</strong> Every project closes with a documented retrospective. Lessons feed back into process.</span></li>
+    <li><span class="dot accent" style="background: var(--accent)"></span><span><strong>Escalation paths are documented.</strong> Disagreements on scope, timeline, or resources have a defined resolution path — not a shouting match.</span></li>
+  </ul>
+</div>
+
+<!-- ===== SLIDE 15: METRICS ===== -->
+<div class="slide" data-tag="FRAMEWORK" data-label="Accountability Metrics">
+  <div class="eyebrow">Accountability Metrics</div>
+  <h2>How We Know It's Working</h2>
+  <div class="cards" style="margin-top: 16px;">
+    <div class="card">
+      <div class="num blue">%</div>
+      <h3>SW Engagement Rate</h3>
+      <p>% of projects where Software was engaged at Opportunity stage. Target: 100%.</p>
+    </div>
+    <div class="card">
+      <div class="num green">✔</div>
+      <h3>Gate Compliance</h3>
+      <p>% of gates passed with documented sign-offs. Any bypass is a tracked exception requiring leadership approval.</p>
+    </div>
+    <div class="card">
+      <div class="num orange">CR</div>
+      <h3>CR Tracking</h3>
+      <p>Number of CRs issued vs. informal changes absorbed. Trend toward zero informal changes.</p>
+    </div>
+    <div class="card">
+      <div class="num" style="color: var(--purple);">Δ</div>
+      <h3>Scope Variance</h3>
+      <p>Difference between SOW-committed scope and delivered scope. Tracks whether we're scoping accurately.</p>
+    </div>
+  </div>
+  <div class="ask-box full-w mt">
+    <div class="label">Reporting Cadence</div>
+    <p>These metrics are reviewed at a monthly engineering leadership sync. Trends — not snapshots — drive process adjustment.</p>
+  </div>
+</div>
+
+<!-- ===== SLIDE 16: WHAT THIS REQUIRES ===== -->
+<div class="slide" data-tag="ASK" data-label="What This Requires from Leadership">
+  <div class="eyebrow">Leadership Requirements</div>
+  <h2>This Cannot Work Without Leadership Backing</h2>
+  <ul class="clean" style="max-width: 760px; margin-top: 8px; gap: 20px;">
+    <li>
+      <span class="dot red"></span>
+      <span><strong>Sales must be told that scope commitments require SW/Controls review first.</strong> This is a commercial and legal conversation — not just an engineering request. Leadership must deliver this message.</span>
+    </li>
+    <li>
+      <span class="dot orange"></span>
+      <span><strong>TPM accountability must be enforced.</strong> TPMs are the technical scope owners. If they are not producing FSD/HI documents and managing SW engagement, that is a performance issue, not a process gap.</span>
+    </li>
+    <li>
+      <span class="dot yellow"></span>
+      <span><strong>PM proliferation must be addressed.</strong> Having 3–4 PMs on a project with the same title and diffuse responsibilities produces no accountability. One PM per project owns delivery. Others are support.</span>
+    </li>
+    <li>
+      <span class="dot accent" style="background: var(--accent)"></span>
+      <span><strong>Process gates must be backed by policy, not good intentions.</strong> If gates can be bypassed without consequence, they will be bypassed. Leadership defines and enforces the consequence.</span>
+    </li>
+  </ul>
+</div>
+
+<!-- ===== SLIDE 17: TRANSITION PLAN ===== -->
+<div class="slide" data-tag="NEXT STEPS" data-label="Transition Plan">
+  <div class="eyebrow green">Next Steps</div>
+  <h2>Implementation — Phased Approach</h2>
+  <ol class="steps" style="max-width: 740px; margin-top: 12px;">
+    <li>
+      <span class="n">1</span>
+      <div><strong>Immediate (0–30 days):</strong> Adopt the intake checklist for all new projects entering the pipeline. Assign DRI roles for all active projects. No new project enters without a type classification and a named TPM.</div>
+    </li>
+    <li>
+      <span class="n">2</span>
+      <div><strong>Short-term (30–60 days):</strong> Implement Gate 1 (SOW Freeze) for all new deals. Sales is briefed. TPM is responsible for organizing SW + Controls review before SOW is issued.</div>
+    </li>
+    <li>
+      <span class="n">3</span>
+      <div><strong>Medium-term (60–90 days):</strong> Full 10-stage lifecycle with all 3 gates operational. Change Request process in place for all customizations.</div>
+    </li>
+    <li>
+      <span class="n">4</span>
+      <div><strong>Ongoing:</strong> Monthly metrics review. Quarterly retrospective on process health. Governance document versioned and owned.</div>
+    </li>
+  </ol>
+</div>
+
+<!-- ===== SLIDE 18: THE ASKS ===== -->
+<div class="slide" data-tag="ASK" data-label="Formal Asks from Leadership">
+  <div class="eyebrow">Formal Asks</div>
+  <h2>What I Am Asking Leadership to Approve Today</h2>
+  <div class="ask-items" style="margin-top: 16px;">
+    <div class="ask-item">
+      <span class="ask-n">1</span>
+      <div class="ask-body">
+        <strong>Mandate that Software and Controls are consulted before any SOW is issued</strong>
+        <p>This is a policy change, not an engineering request. It requires a directive from leadership to Sales and Commercial.</p>
+      </div>
+    </div>
+    <div class="ask-item">
+      <span class="ask-n">2</span>
+      <div class="ask-body">
+        <strong>Ratify the 10-stage lifecycle and 3 gates as the operating standard for project delivery</strong>
+        <p>Engineering will own the technical governance document. Leadership ratifies it as company process — not department preference.</p>
+      </div>
+    </div>
+    <div class="ask-item">
+      <span class="ask-n">3</span>
+      <div class="ask-body">
+        <strong>Define escalation and exception policy</strong>
+        <p>When gates are bypassed, who approves it and who owns the risk. This cannot be an informal decision.</p>
+      </div>
+    </div>
+    <div class="ask-item">
+      <span class="ask-n">4</span>
+      <div class="ask-body">
+        <strong>Monthly engineering/leadership delivery review cadence</strong>
+        <p>Metrics reviewed, exceptions discussed, process adjusted. 30 minutes monthly. Keeps the process honest.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SLIDE 19: RISKS OF INACTION ===== -->
+<div class="slide" data-tag="ASK" data-label="Risks of Inaction">
+  <div class="eyebrow red">Risk Analysis</div>
+  <h2>What Happens If We Don't Change the Model</h2>
+  <ul class="clean" style="max-width: 760px; margin-top: 8px; gap: 20px;">
+    <li><span class="dot red"></span><span><strong>Continued late delivery.</strong> Projects will keep running long because scope is never locked before build begins. This is not a staffing problem — it is a process problem. More engineers will not fix it.</span></li>
+    <li><span class="dot red"></span><span><strong>Invisible financial loss.</strong> Customizations will continue to be delivered for free with no commercial tracking. The revenue impact is real but unquantified.</span></li>
+    <li><span class="dot red"></span><span><strong>Talent risk.</strong> High-performing engineers do not stay in organizations that perpetually operate in reactive mode. This is a retention issue with a long tail.</span></li>
+    <li><span class="dot red"></span><span><strong>Scalability ceiling.</strong> We cannot grow project volume on an oral tradition. Every new hire inherits the chaos. Process is a precondition for scale.</span></li>
+  </ul>
+  <div class="consequence full-w mt">
+    <div class="label">Bottom Line</div>
+    <p>The current state is not sustainable as a business model for project delivery. Governance is not overhead — it is how we protect margin, protect our people, and protect our customers.</p>
+  </div>
+</div>
+
+<!-- ===== SLIDE 20: CLOSE ===== -->
+<div class="slide center" data-tag="CLOSE" data-label="Discussion">
+  <div class="eyebrow green">Working Session</div>
+  <h1>Discussion</h1>
+  <div class="rule green"></div>
+  <p class="sub">The full governance framework, RACI matrix, gate checklists, and intake checklist are available in the reference document. This deck is the case for change. The reference document is the operating model.</p>
+  <div style="margin-top: 40px; display: flex; gap: 16px; flex-wrap: wrap; justify-content: center;">
+    <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 18px 28px; text-align: center;">
+      <div style="font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 6px;">Ask 1</div>
+      <div style="font-size: 14px; color: var(--muted2);">SW/Controls in pre-SOW</div>
+    </div>
+    <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 18px 28px; text-align: center;">
+      <div style="font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 6px;">Ask 2</div>
+      <div style="font-size: 14px; color: var(--muted2);">Ratify 10-stage lifecycle</div>
+    </div>
+    <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 18px 28px; text-align: center;">
+      <div style="font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 6px;">Ask 3</div>
+      <div style="font-size: 14px; color: var(--muted2);">Define exception policy</div>
+    </div>
+    <div style="background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 18px 28px; text-align: center;">
+      <div style="font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; margin-bottom: 6px;">Ask 4</div>
+      <div style="font-size: 14px; color: var(--muted2);">Monthly leadership review</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<div id="nav">
+  <button id="prev-btn" onclick="changeSlide(-1)" disabled>← Prev</button>
+  <div id="slide-info">
+    <div id="nav-label" style="color: var(--muted2); font-weight: 500;"></div>
+  </div>
+  <button id="next-btn" onclick="changeSlide(1)">Next →</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+
+  // set date
+  document.getElementById('date-str').textContent = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  function updateUI() {
+    const slide = slides[current];
+    document.getElementById('slide-counter').textContent = `${current + 1} / ${total}`;
+    document.getElementById('slide-tag').textContent = slide.dataset.tag || '';
+    document.getElementById('slide-label').textContent = slide.dataset.label || '';
+    document.getElementById('nav-label').textContent = slide.dataset.label || '';
+    document.getElementById('progress-fill').style.width = `${((current + 1) / total) * 100}%`;
+    document.getElementById('prev-btn').disabled = current === 0;
+    document.getElementById('next-btn').disabled = current === total - 1;
+
+    // tag color
+    const tag = document.getElementById('slide-tag');
+    tag.className = 'tag';
+    const t = (slide.dataset.tag || '').toLowerCase();
+    if (t === 'diagnosis') tag.classList.add('red');
+    else if (t === 'ask') tag.classList.add('yellow');
+    else if (t === 'governance') tag.classList.add('red');
+    else if (t === 'next steps') tag.classList.add('green');
+  }
+
+  function changeSlide(dir) {
+    const next = current + dir;
+    if (next < 0 || next >= total) return;
+
+    slides[current].classList.remove('active');
+    slides[current].classList.add(dir > 0 ? 'exit-left' : '');
+
+    setTimeout(() => {
+      slides[current].classList.remove('exit-left');
+      current = next;
+      slides[current].classList.add('active');
+      updateUI();
+    }, 30);
+
+    slides[current].classList.remove('active');
+    current = next;
+    slides[current].classList.add('active');
+    updateUI();
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') changeSlide(1);
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') changeSlide(-1);
+  });
+
+  updateUI();
+</script>
+</body>
+</html>

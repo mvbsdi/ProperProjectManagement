@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Software + Hardware Project Lifecycle Pack</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3350;
+    --accent: #4f8ef7;
+    --accent2: #7c5cbf;
+    --green: #2ecc71;
+    --yellow: #f1c40f;
+    --orange: #e67e22;
+    --red: #e74c3c;
+    --text: #e8eaf0;
+    --muted: #8b92b0;
+    --font: 'Segoe UI', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; line-height: 1.6; }
+
+  /* NAV */
+  nav { position: sticky; top: 0; z-index: 100; background: #0a0d14cc; backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; gap: 4px; padding: 8px 24px; flex-wrap: wrap; }
+  nav a { color: var(--muted); text-decoration: none; padding: 4px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; letter-spacing: .4px; transition: all .15s; }
+  nav a:hover { background: var(--surface2); color: var(--text); }
+
+  /* LAYOUT */
+  .container { max-width: 1200px; margin: 0 auto; padding: 40px 24px 80px; }
+  section { margin-bottom: 64px; scroll-margin-top: 64px; }
+  h1 { font-size: 28px; font-weight: 800; letter-spacing: -.5px; margin-bottom: 6px; }
+  h2 { font-size: 20px; font-weight: 700; color: var(--accent); margin-bottom: 20px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  h3 { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 12px; }
+  .subtitle { color: var(--muted); margin-bottom: 32px; font-size: 15px; }
+  .badge { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; }
+  .badge-blue { background: #1a3a6e; color: #7eb8ff; }
+  .badge-green { background: #0e3320; color: #4ddb8f; }
+  .badge-yellow { background: #3a2e00; color: #f5d33a; }
+  .badge-red { background: #3a0e0e; color: #f77; }
+  .badge-purple { background: #2a1a4e; color: #c0a0ff; }
+  .badge-orange { background: #3a1e00; color: #ffaa55; }
+
+  /* HERO LIFECYCLE */
+  .lifecycle { display: flex; flex-direction: column; gap: 0; }
+  .stage { display: grid; grid-template-columns: 48px 1fr; gap: 0 16px; position: relative; }
+  .stage-line { display: flex; flex-direction: column; align-items: center; }
+  .stage-num { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; flex-shrink: 0; z-index: 1; }
+  .stage-connector { flex: 1; width: 2px; background: var(--border); margin: 4px 0; min-height: 16px; }
+  .stage:last-child .stage-connector { display: none; }
+  .stage-body { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; margin-bottom: 12px; transition: border-color .2s; }
+  .stage-body:hover { border-color: var(--accent); }
+  .stage-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+  .stage-title { font-weight: 700; font-size: 15px; }
+  .stage-gate { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; margin-top: 8px; font-size: 12px; color: var(--muted); }
+  .stage-gate strong { color: var(--yellow); }
+  .stage-roles { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .stage-sw { background: #1a2e50; border: 1px solid #2a4070; border-radius: 6px; padding: 4px 10px; font-size: 11px; color: #7eb8ff; font-weight: 600; }
+  .stage-sw.highlight { background: #0e3320; border-color: #1a6040; color: #4ddb8f; }
+
+  /* RETRY ARROWS */
+  .retry-block { background: var(--surface2); border: 1px dashed var(--accent2); border-radius: 10px; padding: 12px 16px; margin: -6px 0 12px 64px; font-size: 12px; color: var(--muted); display: flex; align-items: flex-start; gap: 10px; }
+  .retry-block::before { content: '↩'; font-size: 18px; color: var(--accent2); flex-shrink: 0; line-height: 1; }
+  .retry-block strong { color: var(--text); }
+
+  /* RACI TABLE */
+  .raci-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; }
+  thead { background: var(--surface2); }
+  th { padding: 10px 14px; font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; font-size: 13px; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--surface2); }
+  .r { font-weight: 800; color: var(--red); }
+  .a { font-weight: 800; color: var(--yellow); }
+  .c { font-weight: 800; color: var(--accent); }
+  .i { font-weight: 800; color: var(--muted); }
+  .raci-key { display: flex; gap: 20px; margin-top: 12px; font-size: 12px; flex-wrap: wrap; }
+  .raci-key span { display: flex; align-items: center; gap: 6px; }
+
+  /* GATE CHECKLIST */
+  .gate-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+  .gate-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .gate-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .gate-icon { font-size: 20px; }
+  .gate-card h3 { font-size: 13px; font-weight: 700; color: var(--text); text-transform: none; letter-spacing: 0; margin: 0; }
+  .gate-card .gate-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .checklist { list-style: none; }
+  .checklist li { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12px; line-height: 1.5; }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist li::before { content: '☐'; font-size: 14px; color: var(--accent); flex-shrink: 0; line-height: 1.4; }
+  .checklist li.blocker::before { content: '🛑'; font-size: 11px; }
+  .checklist li.blocker { color: #f77; }
+
+  /* ARCHETYPE MATRIX */
+  .archetype-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 700px) { .archetype-grid { grid-template-columns: 1fr; } }
+  .archetype-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .archetype-card h3 { font-size: 14px; font-weight: 800; margin-bottom: 4px; text-transform: none; letter-spacing: 0; color: var(--text); }
+  .archetype-card .sub { font-size: 11px; color: var(--muted); margin-bottom: 14px; }
+  .metric-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .metric-row:last-child { border-bottom: none; }
+  .metric-row .val { font-weight: 700; }
+  .val-high { color: var(--red); }
+  .val-med { color: var(--yellow); }
+  .val-low { color: var(--green); }
+
+  /* RULES */
+  .rules-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+  .rule-card { background: var(--surface); border-left: 3px solid var(--red); border-radius: 0 10px 10px 0; padding: 14px 16px; font-size: 13px; }
+  .rule-card .rule-num { font-size: 10px; font-weight: 800; color: var(--red); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .rule-card strong { display: block; font-size: 13px; margin-bottom: 4px; }
+  .rule-card p { color: var(--muted); font-size: 12px; }
+
+  /* METRICS */
+  .metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .metric-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
+  .metric-card .metric-label { font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: .5px; text-transform: uppercase; margin-bottom: 8px; }
+  .metric-card .metric-value { font-size: 28px; font-weight: 800; color: var(--accent); }
+  .metric-card .metric-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* FOOTER */
+  .footer-rule { border: none; border-top: 1px solid var(--border); margin-bottom: 20px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#lifecycle">Lifecycle</a>
+  <a href="#archetypes">Archetypes</a>
+  <a href="#raci">RACI</a>
+  <a href="#gates">Gate Checklists</a>
+  <a href="#intake">Intake Checklist</a>
+  <a href="#rules">Non-Negotiables</a>
+  <a href="#metrics">Metrics</a>
+</nav>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div style="margin-bottom:40px">
+    <h1>Software + Hardware Project Lifecycle Pack</h1>
+    <p class="subtitle">Governance framework for Greenfield, Recontrol, and Upgrade projects — with mandatory software and controls engagement gates.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <span class="badge badge-blue">Internal Use</span>
+      <span class="badge badge-green">v1.0</span>
+      <span class="badge badge-purple">Software &amp; Controls</span>
+    </div>
+  </div>
+
+  <!-- LIFECYCLE -->
+  <section id="lifecycle">
+    <h2>Project Lifecycle</h2>
+    <p style="color:var(--muted);margin-bottom:24px;font-size:13px">Dashed purple blocks indicate agile reconciliation loops — impasses that must be resolved before the project advances. No stage may be skipped; gates are auditable.</p>
+    <div class="lifecycle">
+
+      <!-- S1 -->
+      <div class="stage">
+        <div class="stage-line"><div class="stage-num" style="background:#1a3a6e;color:#7eb8ff">1</div><div class="stage-connector"></div></div>
+        <div class="stage-body">
+          <div class="stage-header">
+            <span class="stage-title">Opportunity Qualification</span>
+            <span class="badge badge-blue">Pre-SOW</span>
+          </div>
+          <p style="font-size:13px;color:var(--muted)">Opportunity is identified, tiered by archetype (Greenfield / Recontrol / Upgrade), and assessed for complexity risk class.</p>
+          <div class="stage-roles">
+            <span class="stage-sw highlight">⚡ Software: 48h LOE estimate</span>
+            <span class="stage-sw highlight">⚡ Controls: 48h LOE estimate</span>
+            <span class="stage-sw">Sales / KAM</span>
+            <span class="stage-sw">Solution Architect</span>
+          </div>
+          <div class="stage-gate"><strong>EXIT GATE:</strong> Archetype + risk class confirmed. Software &amp; Controls LOE estimate on file. No LOE = no sales pursuit resource allocation.</div>
+        </div>
+      </div>
+
+      <div class="retry-block"><div><strong>Reconciliation Loop A — Feasibility Impasse</strong><br>If Sales has promised capabilities outside known product bounds, SA + Software + Controls jointly define what is feasible before solution shaping proceeds. Sales must re-align with customer before advancing.</div></div>
+
+      <!-- S2 -->
+      <div class="stage">
+        <div class="stage-line"><div class="stage-num" style="background:#1a3a6e;color:#7eb8ff">2</div><div class="stage-connector"></div></div>
+        <div class="stage-body">
+          <div class="stage-header">
+            <span class="stage-title">Solution Shaping</span>
+            <span class="badge badge-blue">Pre-SOW</span>
+          </div>
+          <p style="font-size:13px;color:var(--muted)">SA leads technical discovery with the customer. Key functions, interfaces, integration points, and exclusions are defined. Hardware and software touch-points identified.</p>
+          <div class="stage-roles">
+            <span class="stage-sw highlight">⚡ Software Lead: named &amp; participates</span>
+            <span class="stage-sw highlight">⚡ Controls Lead: named &amp; participates</span>
+            <span class="stage-sw">Solution Architect (lead)</span>
+            <span class="stage-sw">Sales / KAM</span>
+          </div>
+          <div class="stage-gate"><strong>EXIT GATE:</strong> Technical Feasibility Sign-off — named Software Lead + Controls Lead sign. No signature = no SOW draft.</div>
+        </div>
+      </div>
+
+      <div class="retry-block"><div><strong>Reconciliation Loop B — Scope Inflation</strong><br>If customer requirements expand during shaping beyond the LOE estimate, a revised estimate is produced and commercial alignment is required before SOW is drafted. Change is normal; undocumented change is not.</div></div>
+
+      <!-- S3 -->
+      <div class="stage">
+        <div class="stage-line"><div class="stage-num" style="background:#2a1a4e;color:#c0a0ff">3</div><div class="stage-connector"></div></div>
+        <div class="stage-body">
+          <div class="stage-header">
+            <span class="stage-title">Commercial Commit — SOW Freeze</span>
+            <span class="badge badge-purple">Contract</span>
+          </div>
+          <p style="font-size:13px;color:var(--muted)">SOW is drafted and reviewed. All scope assumptions, exclusions, interface dependencies, and change order process must be explicit. Software and Controls sign off on scope language.</p>
+          <div class="stage-roles">
+            <span class="stage-sw highlight">⚡ Software: signs scope language</span>
+            <span class="stage-sw highlight">⚡ Controls: signs scope language</span>
+            <span class="stage-sw">Sales (commercial lead)</span>
+            <span class="stage-sw">PM (assigned at this point)</span>
+          </div>
+          <div class="stage-gate"><strong>EXIT GATE:</strong> SOW signed internally by Software + Controls. Any scope impacting UI, integrations, reporting, commissioning tools, or PLC logic must have explicit sign-off. Unsigned = no contract execution.</div>
+        </div>
+      </div>
+
+      <!-- S4 -->
+      <div class="stage">
+        <div class="stage-line"><div class="stage-num" style="background:#0e3320;color:#4ddb8f">4</div><div class="stage-connector"></div></div>
+        <div class="stage-body">
+          <div class="stage-header">
+            <span class="stage-title">Project Intake — T₀</span>
+            <span class="badge badge-green">Kick-off</span>
+          </div>
+          <p style="font-size:13px;color:var(--muted)">Formal project kick-off. Single accountable PM and single accountable TPM are named. Mandatory handoff meeting within 5 business days of contract execution.</p>
+          <div class="stage-roles">
+            <span class="stage-sw highlight">⚡ Software Lead: attends, accepts scope brief</span>
+            <span class="stage-sw highlight">⚡ Controls Lead: attends, accepts scope brief</span>
+            <span class="stage-sw">PM (single DRI)</span>
+            <span class="stage-sw">TPM (single DRI)</span>
+            <span class="stage-sw">SA</span>
+            <span class="stage-sw">KAM</span>
+          </div>
+          <div class="stage-gate"><strong>EXIT GATE:</strong> Named PM + TPM pair on file. Intake checklist complete. No unnamed PM/TPM = project cannot start scheduling.</div>
+        </div>
+      </div>
+
+      <div class="retry-block"><div><strong>Reconciliation Loop C — Requirements Gap</strong><br>If FSD/HI discovery surfaces scope not covered in the SOW, a Change Request is raised immediately. Scope is not absorbed silently. TPM owns the CR; PM owns the schedule impact; Sales owns the commercial conversation.</div></div>
+
+      <!-- S5 -->
+      <div class="stage">
+        <div class="stage-line"><div class="stage-num" style="background:#0e3320;color:#4ddb8f">5</div><div class="stage-connector"></div></div>
+        <div class="stage-body">
+          <div class="stage-header">
+            <span class="stage-title">Discovery &amp; Requirements</span>
+            <span class="badge badge-green">Requirements</span>
+          </div>
+          <p style="font-size:13px;color:var(--muted)">TPM drives FSD and HI document creation. SA validates field and customer reality. Software and Controls co-author their relevant sections. Requirements are traceable to SOW scope items.</p>
+          <div class="stage-roles">
+            <span class="stage-sw highlight">⚡ Software: co-authors FSD software sections</span>
+            <span class="stage-sw highlight">⚡ Controls: co-authors HI / controls sections</span>
+            <span class="stage-sw">TPM (lead author)</span>
+            <span class="stage-sw">SA (field validation)</span>
+          </div>
+          <div class="stage-gate"><strong>EXIT GATE:</strong> FSD + HI baselined, customer-approved, and signed by TPM + Software Lead + Controls Lead. No baseline = no build start.</div>
+        </div>
+      </div>
+
+      <!-- S6 -->
+      <div class="stage">
+        <div class="stage-line"><div class="stage-num" style="background:#0e3320;color:#4ddb8f">6</div><div class="stage-connector"></div></div>
+        <div class="stage-body">
+          <div class="stage-header">
+            <span class="stage-title">Design &amp; Build Planning</span>
+            <span class="badge badge-green">Planning</span>
+          </div>
+          <p style="font-size:13px;color:var(--muted)">Build plan, staffing plan, integration test strategy, and hardware delivery dependency map produced. Software and Controls capacity reserved by named people — not generic resource pools.</p>
+          <div class="stage-roles">
+            <span class="stage-sw highlight">⚡ Software: named staff, sprint plan, integration test strategy</span>
+            <span class="stage-sw highlight">⚡ Controls: named staff, PLC dev plan</span>
+            <span class="stage-sw">TPM (software schedule owner)</span>
+            <span class="stage-sw">PM (master schedule)</span>
+          </div>
+          <div class="stage-gate"><strong>EXIT GATE:</strong> Named staff plan approved by Software Engineering Manager. Hardware dependency map acknowledged. No named staff = no build start.</div>
+        </div>
+      </div>
+
+      <div class="retry-block"><div><strong>Reconciliation Loop D — Integration Conflict</strong><br>If software-controls interface behaviors conflict during build (e.g. PLC signal mapping vs. software expectations), a joint resolution session is called within 48h. TPM arbitrates; PM assesses schedule impact.</div></div>
+
+      <!-- S7 -->
+      <div class="stage">
+        <div class="stage-line"><div class="stage-num" style="background:#3a2e00;color:#f5d33a">7</div><div class="stage-connector"></div></div>
+        <div class="stage-body">
+          <div class="stage-header">
+            <span class="stage-title">Build &amp; Integration</span>
+            <span class="badge badge-yellow">Active Build</span>
+          </div>
+          <p style="font-size:13px;color:var(--muted)">Iterative build with regular software-controls-hardware integration checkpoints. Customization change requests processed through formal CR process only.</p>
+          <div class="stage-roles">
+            <span class="stage-sw highlight">⚡ Software: builds, demos, integration tests</span>
+            <span class="stage-sw highlight">⚡ Controls: PLC dev, interface tests</span>
+            <span class="stage-sw">TPM (dependency &amp; CR owner)</span>
+            <span class="stage-sw">SA (config support)</span>
+            <span class="stage-sw">PM (timeline &amp; hardware)</span>
+          </div>
+          <div class="stage-gate"><strong>EXIT GATE:</strong> All FSD acceptance criteria met. Interface test matrix pass. Outstanding items documented in punch list with severity tags. No untested interfaces advance to site.</div>
+        </div>
+      </div>
+
+      <!-- S8 -->
+      <div class="stage">
+        <div class="stage-line"><div class="stage-num" style="background:#3a1e00;color:#ffaa55">8</div><div class="stage-connector"></div></div>
+        <div class="stage-body">
+          <div class="stage-header">
+            <span class="stage-title">Site Readiness &amp; Commissioning</span>
+            <span class="badge badge-orange">Commissioning</span>
+          </div>
+          <p style="font-size:13px;color:var(--muted)">FAT/SAT entry checklist must pass before travel or site access is authorized. Software and Controls sign site readiness gate. On-site, SA leads configuration with Software and Controls on call.</p>
+          <div class="stage-roles">
+            <span class="stage-sw highlight">⚡ Software: signs site readiness gate; on-call during commissioning</span>
+            <span class="stage-sw highlight">⚡ Controls: signs site readiness; leads PLC commissioning</span>
+            <span class="stage-sw">SA (on-site lead)</span>
+            <span class="stage-sw">PM (logistics &amp; schedule)</span>
+          </div>
+          <div class="stage-gate"><strong>EXIT GATE:</strong> FAT/SAT checklist passed. Software + Controls sign readiness. Customer sign-off on commissioning scope.</div>
+        </div>
+      </div>
+
+      <!-- S9 -->
+      <div class="stage">
+        <div class="stage-line"><div class="stage-num" style="background:#3a0e0e;color:#f77">9</div><div class="stage-connector"></div></div>
+        <div class="stage-body">
+          <div class="stage-header">
+            <span class="stage-title">Go-Live &amp; Hypercare</span>
+            <span class="badge badge-red">Live</span>
+          </div>
+          <p style="font-size:13px;color:var(--muted)">Go-live criteria met before cutover. Hypercare window active with Software and Controls on defined rota. Post-launch defects triaged with commercial impact tags — billable vs. warranty.</p>
+          <div class="stage-roles">
+            <span class="stage-sw highlight">⚡ Software: hypercare rota, defect triage</span>
+            <span class="stage-sw highlight">⚡ Controls: hypercare rota</span>
+            <span class="stage-sw">PM (cutover owner)</span>
+            <span class="stage-sw">KAM / Customer Success</span>
+          </div>
+          <div class="stage-gate"><strong>EXIT GATE:</strong> Go-live criteria checklist passed. Change backlog triaged. Hypercare rota named and communicated to customer.</div>
+        </div>
+      </div>
+
+      <!-- S10 -->
+      <div class="stage">
+        <div class="stage-line"><div class="stage-num" style="background:#1a1d27;color:var(--muted);border:1px solid var(--border)">10</div></div>
+        <div class="stage-body">
+          <div class="stage-header">
+            <span class="stage-title">Project Closeout &amp; Retrospective</span>
+            <span class="badge badge-blue">Closed</span>
+          </div>
+          <p style="font-size:13px;color:var(--muted)">Lessons learned captured. Estimate variance recorded by archetype. Customer satisfaction noted. Findings fed back to pre-SOW process and estimation models.</p>
+          <div class="stage-roles">
+            <span class="stage-sw highlight">⚡ Software: estimate variance + lessons learned</span>
+            <span class="stage-sw highlight">⚡ Controls: estimate variance + lessons learned</span>
+            <span class="stage-sw">PMO (aggregate + report)</span>
+            <span class="stage-sw">TPM</span>
+            <span class="stage-sw">PM</span>
+          </div>
+          <div class="stage-gate"><strong>EXIT GATE:</strong> Closeout report filed. Variance data entered in estimation database. Project formally closed in system.</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ARCHETYPES -->
+  <section id="archetypes">
+    <h2>Project Archetypes</h2>
+    <div class="archetype-grid">
+      <div class="archetype-card" style="border-top:3px solid var(--accent)">
+        <h3>🏗 Greenfield</h3>
+        <p class="sub">New system from scratch — highest risk, highest lead time</p>
+        <div class="metric-row"><span>Software Complexity</span><span class="val val-high">High</span></div>
+        <div class="metric-row"><span>Controls Complexity</span><span class="val val-high">High</span></div>
+        <div class="metric-row"><span>Customization Risk</span><span class="val val-high">High</span></div>
+        <div class="metric-row"><span>Min. Pre-SOW Lead Time</span><span class="val" style="color:var(--accent)">4–8 weeks</span></div>
+        <div class="metric-row"><span>Software Involvement</span><span class="val val-high">Stage 1 mandatory</span></div>
+        <div class="metric-row"><span>Change Request Risk</span><span class="val val-high">Very High</span></div>
+        <div class="metric-row"><span>Typical FSD Complexity</span><span class="val val-high">Full custom</span></div>
+      </div>
+      <div class="archetype-card" style="border-top:3px solid var(--orange)">
+        <h3>🔁 Recontrol / Upgrade (Major)</h3>
+        <p class="sub">Existing system replaced or heavily modified — large scope, legacy risk</p>
+        <div class="metric-row"><span>Software Complexity</span><span class="val val-high">High</span></div>
+        <div class="metric-row"><span>Controls Complexity</span><span class="val val-high">High</span></div>
+        <div class="metric-row"><span>Legacy Interface Risk</span><span class="val val-high">High</span></div>
+        <div class="metric-row"><span>Min. Pre-SOW Lead Time</span><span class="val" style="color:var(--orange)">3–6 weeks</span></div>
+        <div class="metric-row"><span>Software Involvement</span><span class="val val-high">Stage 1 mandatory</span></div>
+        <div class="metric-row"><span>Change Request Risk</span><span class="val val-high">High — scope creep on existing features</span></div>
+        <div class="metric-row"><span>Typical FSD Complexity</span><span class="val val-med">Delta from existing</span></div>
+      </div>
+      <div class="archetype-card" style="border-top:3px solid var(--green)">
+        <h3>⬆️ Upgrade (Minor)</h3>
+        <p class="sub">Incremental update — lower scope, but customization adds up</p>
+        <div class="metric-row"><span>Software Complexity</span><span class="val val-low">Low–Med</span></div>
+        <div class="metric-row"><span>Controls Complexity</span><span class="val val-low">Low–Med</span></div>
+        <div class="metric-row"><span>Customization Add-on Risk</span><span class="val val-med">Medium</span></div>
+        <div class="metric-row"><span>Min. Pre-SOW Lead Time</span><span class="val" style="color:var(--green)">1–2 weeks</span></div>
+        <div class="metric-row"><span>Software Involvement</span><span class="val val-med">Stage 2 minimum</span></div>
+        <div class="metric-row"><span>Change Request Risk</span><span class="val val-med">Medium — "while you're in there"</span></div>
+        <div class="metric-row"><span>Typical FSD Complexity</span><span class="val val-low">Targeted delta</span></div>
+      </div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin-top:16px;font-size:13px">
+      <strong style="color:var(--yellow)">⚠ Customization Rule:</strong> <span style="color:var(--muted)">At any archetype, any request for new screens, UI components, features, or integrations added after SOW freeze is a <strong style="color:var(--text)">formal Change Request</strong>. It must include scope description, software LOE, controls LOE (if applicable), schedule impact, and commercial impact before any work begins.</span>
+    </div>
+  </section>
+
+  <!-- RACI -->
+  <section id="raci">
+    <h2>RACI Matrix</h2>
+    <div class="raci-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Activity</th>
+            <th>Sales/KAM</th>
+            <th>PM</th>
+            <th>TPM</th>
+            <th>SA</th>
+            <th>Software Lead</th>
+            <th>Controls Lead</th>
+            <th>Eng. Manager</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="8" style="background:var(--surface2);font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.8px;text-transform:uppercase">PRE-SOW</td></tr>
+          <tr><td>Opportunity qualification &amp; tiering</td><td class="a">A</td><td class="c">C</td><td class="c">C</td><td class="r">R</td><td class="c">C</td><td class="c">C</td><td class="i">I</td></tr>
+          <tr><td>Software LOE estimate (pre-SOW)</td><td class="i">I</td><td class="i">I</td><td class="c">C</td><td class="c">C</td><td class="a r">A/R</td><td class="c">C</td><td class="a">A</td></tr>
+          <tr><td>Controls LOE estimate (pre-SOW)</td><td class="i">I</td><td class="i">I</td><td class="c">C</td><td class="c">C</td><td class="c">C</td><td class="a r">A/R</td><td class="a">A</td></tr>
+          <tr><td>Technical Feasibility Sign-off</td><td class="i">I</td><td class="i">I</td><td class="c">C</td><td class="r">R</td><td class="a">A</td><td class="a">A</td><td class="c">C</td></tr>
+          <tr><td>SOW scope language review</td><td class="a">A</td><td class="r">R</td><td class="r">R</td><td class="c">C</td><td class="a">A</td><td class="a">A</td><td class="c">C</td></tr>
+          <tr><td colspan="8" style="background:var(--surface2);font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.8px;text-transform:uppercase">INTAKE &amp; REQUIREMENTS</td></tr>
+          <tr><td>Project intake &amp; kick-off meeting</td><td class="c">C</td><td class="a">A</td><td class="r">R</td><td class="r">R</td><td class="r">R</td><td class="r">R</td><td class="i">I</td></tr>
+          <tr><td>PM assignment (single DRI)</td><td class="i">I</td><td class="a r">A/R</td><td class="i">I</td><td class="i">I</td><td class="i">I</td><td class="i">I</td><td class="a">A</td></tr>
+          <tr><td>TPM assignment (single DRI)</td><td class="i">I</td><td class="i">I</td><td class="a r">A/R</td><td class="i">I</td><td class="i">I</td><td class="i">I</td><td class="a">A</td></tr>
+          <tr><td>FSD authoring</td><td class="i">I</td><td class="i">I</td><td class="a">A</td><td class="r">R</td><td class="r">R</td><td class="r">R</td><td class="c">C</td></tr>
+          <tr><td>HI document authoring</td><td class="i">I</td><td class="i">I</td><td class="a">A</td><td class="r">R</td><td class="c">C</td><td class="r">R</td><td class="c">C</td></tr>
+          <tr><td>FSD/HI customer approval</td><td class="c">C</td><td class="r">R</td><td class="a">A</td><td class="r">R</td><td class="c">C</td><td class="c">C</td><td class="i">I</td></tr>
+          <tr><td colspan="8" style="background:var(--surface2);font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.8px;text-transform:uppercase">BUILD &amp; DELIVERY</td></tr>
+          <tr><td>Software staffing &amp; scheduling</td><td class="i">I</td><td class="c">C</td><td class="r">R</td><td class="i">I</td><td class="c">C</td><td class="i">I</td><td class="a">A</td></tr>
+          <tr><td>Controls staffing &amp; scheduling</td><td class="i">I</td><td class="c">C</td><td class="r">R</td><td class="i">I</td><td class="i">I</td><td class="c">C</td><td class="a">A</td></tr>
+          <tr><td>Change request initiation</td><td class="c">C</td><td class="r">R</td><td class="a">A</td><td class="c">C</td><td class="c">C</td><td class="c">C</td><td class="c">C</td></tr>
+          <tr><td>Change request commercial decision</td><td class="a">A</td><td class="r">R</td><td class="c">C</td><td class="i">I</td><td class="i">I</td><td class="i">I</td><td class="i">I</td></tr>
+          <tr><td>Integration testing</td><td class="i">I</td><td class="i">I</td><td class="a">A</td><td class="c">C</td><td class="r">R</td><td class="r">R</td><td class="c">C</td></tr>
+          <tr><td>Site readiness sign-off</td><td class="i">I</td><td class="r">R</td><td class="a">A</td><td class="r">R</td><td class="a">A</td><td class="a">A</td><td class="c">C</td></tr>
+          <tr><td>Go-live authorization</td><td class="c">C</td><td class="a">A</td><td class="r">R</td><td class="r">R</td><td class="r">R</td><td class="r">R</td><td class="c">C</td></tr>
+          <tr><td>Hypercare rota &amp; defect triage</td><td class="i">I</td><td class="c">C</td><td class="a">A</td><td class="r">R</td><td class="r">R</td><td class="r">R</td><td class="c">C</td></tr>
+          <tr><td>Project closeout &amp; retrospective</td><td class="i">I</td><td class="r">R</td><td class="r">R</td><td class="c">C</td><td class="r">R</td><td class="r">R</td><td class="a">A</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="raci-key">
+      <span><span class="r">R</span> Responsible — does the work</span>
+      <span><span class="a">A</span> Accountable — single owner, must approve</span>
+      <span><span class="c">C</span> Consulted — must be asked, two-way</span>
+      <span><span class="i">I</span> Informed — notified, one-way</span>
+    </div>
+  </section>
+
+  <!-- GATE CHECKLISTS -->
+  <section id="gates">
+    <h2>Gate Checklists</h2>
+    <div class="gate-grid">
+
+      <div class="gate-card">
+        <div class="gate-card-header">
+          <span class="gate-icon">🔍</span>
+          <div><h3>Gate 1 — Technical Feasibility</h3><p class="gate-sub">Required before SOW is drafted</p></div>
+        </div>
+        <ul class="checklist">
+          <li class="blocker">Named Software Lead assigned and available</li>
+          <li class="blocker">Named Controls Lead assigned and available</li>
+          <li class="blocker">Software LOE estimate on file (even if rough order of magnitude)</li>
+          <li class="blocker">Controls LOE estimate on file</li>
+          <li>Key customer interfaces identified (WMS, ERP, third-party APIs)</li>
+          <li>Hardware dependency list reviewed by Software for interface assumptions</li>
+          <li>Any capabilities promised verbally by Sales confirmed as feasible</li>
+          <li>Open risks documented with severity (High / Med / Low)</li>
+          <li>Technical Feasibility doc signed by Software Lead + Controls Lead</li>
+        </ul>
+      </div>
+
+      <div class="gate-card">
+        <div class="gate-card-header">
+          <span class="gate-icon">📄</span>
+          <div><h3>Gate 2 — SOW Internal Sign-off</h3><p class="gate-sub">Required before contract execution</p></div>
+        </div>
+        <ul class="checklist">
+          <li class="blocker">Software Lead has reviewed and signed SOW scope language</li>
+          <li class="blocker">Controls Lead has reviewed and signed SOW scope language</li>
+          <li class="blocker">Assumptions and exclusions explicitly stated in SOW</li>
+          <li class="blocker">Change order process defined in SOW</li>
+          <li>Hardware delivery dependencies called out (impacts software go-live date)</li>
+          <li>Integration points and third-party dependencies scoped</li>
+          <li>Commissioning and training scope defined</li>
+          <li>PM named (or named at contract execution)</li>
+        </ul>
+      </div>
+
+      <div class="gate-card">
+        <div class="gate-card-header">
+          <span class="gate-icon">🚀</span>
+          <div><h3>Gate 3 — Project Intake</h3><p class="gate-sub">Required before any scheduling or resource allocation</p></div>
+        </div>
+        <ul class="checklist">
+          <li class="blocker">Single PM named as DRI (one, not three)</li>
+          <li class="blocker">Single TPM named as DRI</li>
+          <li class="blocker">Kick-off meeting held within 5 business days of contract</li>
+          <li class="blocker">SOW and Technical Feasibility doc distributed to all team</li>
+          <li>Archetype confirmed (Greenfield / Recontrol / Upgrade)</li>
+          <li>Initial project timeline skeleton in scheduling system</li>
+          <li>Hardware procurement initiated or confirmed</li>
+          <li>Customer primary contact(s) identified</li>
+          <li>Initial cadence meeting scheduled</li>
+        </ul>
+      </div>
+
+      <div class="gate-card">
+        <div class="gate-card-header">
+          <span class="gate-icon">📋</span>
+          <div><h3>Gate 4 — FSD / HI Baseline</h3><p class="gate-sub">Required before build starts</p></div>
+        </div>
+        <ul class="checklist">
+          <li class="blocker">FSD signed by TPM + Software Lead</li>
+          <li class="blocker">HI signed by TPM + Controls Lead</li>
+          <li class="blocker">All requirements traceable to SOW scope items</li>
+          <li class="blocker">Customer has approved FSD/HI (or provided written exceptions)</li>
+          <li>Interface definitions complete (signals, protocols, data formats)</li>
+          <li>Screen/UI inventory complete with acceptance criteria</li>
+          <li>Reporting requirements documented</li>
+          <li>Open items list reviewed — no P1 open items remaining</li>
+        </ul>
+      </div>
+
+      <div class="gate-card">
+        <div class="gate-card-header">
+          <span class="gate-icon">🔧</span>
+          <div><h3>Gate 5 — Site Readiness (FAT/SAT)</h3><p class="gate-sub">Required before travel or site access authorized</p></div>
+        </div>
+        <ul class="checklist">
+          <li class="blocker">Software Lead signs site readiness checklist</li>
+          <li class="blocker">Controls Lead signs site readiness checklist</li>
+          <li class="blocker">All FSD acceptance criteria tested and documented</li>
+          <li class="blocker">Interface test matrix completed and signed</li>
+          <li>Punch list generated with severity tags (P1/P2/P3)</li>
+          <li>No P1 defects outstanding</li>
+          <li>Site environment confirmed ready (network, hardware power, access)</li>
+          <li>Training plan confirmed</li>
+          <li>Rollback/contingency plan documented</li>
+        </ul>
+      </div>
+
+      <div class="gate-card">
+        <div class="gate-card-header">
+          <span class="gate-icon">✅</span>
+          <div><h3>Gate 6 — Go-Live Authorization</h3><p class="gate-sub">Required before production cutover</p></div>
+        </div>
+        <ul class="checklist">
+          <li class="blocker">Customer sign-off on go-live criteria</li>
+          <li class="blocker">Hypercare rota published and communicated</li>
+          <li class="blocker">No P1 defects in open state</li>
+          <li>Change backlog triaged — items tagged billable vs. warranty</li>
+          <li>Post-go-live support contacts confirmed</li>
+          <li>Escalation path documented (software → TPM → Eng. Manager)</li>
+          <li>Closeout meeting scheduled</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- INTAKE CHECKLIST -->
+  <section id="intake">
+    <h2>Project Intake Checklist</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:20px">Complete this checklist at T₀ (contract execution). The PM and TPM are jointly responsible for completion within 5 business days.</p>
+    <div class="gate-grid">
+
+      <div class="gate-card">
+        <div class="gate-card-header"><span class="gate-icon">👥</span><div><h3>People &amp; Accountability</h3></div></div>
+        <ul class="checklist">
+          <li class="blocker">Single PM named — full name, email</li>
+          <li class="blocker">Single TPM named — full name, email</li>
+          <li class="blocker">Software Lead named — full name, capacity %</li>
+          <li class="blocker">Controls Lead named — full name, capacity %</li>
+          <li>SA assigned and briefed</li>
+          <li>KAM / Customer Success owner identified</li>
+          <li>Customer primary technical contact identified</li>
+          <li>Customer primary commercial contact identified</li>
+        </ul>
+      </div>
+
+      <div class="gate-card">
+        <div class="gate-card-header"><span class="gate-icon">📁</span><div><h3>Documents &amp; Scope</h3></div></div>
+        <ul class="checklist">
+          <li class="blocker">Signed SOW distributed to all team members</li>
+          <li class="blocker">Technical Feasibility doc attached to project record</li>
+          <li>Archetype confirmed: Greenfield / Recontrol / Upgrade</li>
+          <li>Project folder created with standard structure</li>
+          <li>FSD/HI kickoff scheduled with TPM + SA + Software + Controls</li>
+          <li>Any verbal commitments made during sales process documented</li>
+          <li>Known risks from pre-SOW logged in risk register</li>
+        </ul>
+      </div>
+
+      <div class="gate-card">
+        <div class="gate-card-header"><span class="gate-icon">🗓</span><div><h3>Schedule &amp; Resources</h3></div></div>
+        <ul class="checklist">
+          <li class="blocker">Target go-live date confirmed with customer</li>
+          <li class="blocker">Hardware procurement lead time confirmed</li>
+          <li>Software capacity formally reserved in scheduling system</li>
+          <li>Controls capacity formally reserved in scheduling system</li>
+          <li>Hardware delivery milestones mapped to software dependency dates</li>
+          <li>Third-party / vendor lead times identified</li>
+          <li>Initial master schedule skeleton created in project management tool</li>
+          <li>Weekly cadence meeting scheduled (PM + TPM + Software + Controls)</li>
+        </ul>
+      </div>
+
+      <div class="gate-card">
+        <div class="gate-card-header"><span class="gate-icon">🔗</span><div><h3>Integrations &amp; Interfaces</h3></div></div>
+        <ul class="checklist">
+          <li>Third-party system list compiled (WMS, ERP, APIs, PLCs)</li>
+          <li>For each integration: owner, protocol, data format, point of contact</li>
+          <li>Customer IT contact identified for network/security coordination</li>
+          <li>Hardware-software interface assumptions documented</li>
+          <li>Any customer-provided components or data noted with delivery timeline</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- NON-NEGOTIABLES -->
+  <section id="rules">
+    <h2>Non-Negotiable Operating Rules</h2>
+    <div class="rules-grid">
+      <div class="rule-card">
+        <div class="rule-num">Rule 1</div>
+        <strong>No Technical Feasibility Gate = No SOW</strong>
+        <p>Software and Controls must sign the Technical Feasibility document before any SOW is drafted. Sales does not own feasibility — engineering does.</p>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">Rule 2</div>
+        <strong>No Named PM/TPM Pair = No Project Start</strong>
+        <p>Every project has exactly one PM (delivery DRI) and one TPM (software scope DRI). Three PMs with the same title is zero accountable PMs.</p>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">Rule 3</div>
+        <strong>No Software/Controls SOW Sign-off = No Contract</strong>
+        <p>Any scope item touching software UI, integrations, reporting, or PLC logic requires written sign-off from the relevant lead before contract execution.</p>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">Rule 4</div>
+        <strong>Post-SOW Scope = Formal Change Request</strong>
+        <p>Any customization, new screen, new feature, or integration added after SOW freeze requires a CR with LOE, schedule impact, and commercial impact before a single hour of work begins.</p>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">Rule 5</div>
+        <strong>No FSD/HI Baseline = No Build</strong>
+        <p>Build does not start until FSD and HI are baselined, customer-approved, and signed by TPM + Software Lead + Controls Lead. Verbal requirements do not constitute scope.</p>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">Rule 6</div>
+        <strong>No Site Readiness Sign-off = No Travel</strong>
+        <p>No engineer travels to site until the FAT/SAT checklist is complete and signed. Showing up to site to "figure it out" is not commissioning — it is expensive failure.</p>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">Rule 7</div>
+        <strong>Software Capacity Is Not On-Demand</strong>
+        <p>Software engineers are not a utility. Capacity must be reserved by name in the scheduling system at project intake. Surprise projects absorb nothing — they create debt.</p>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">Rule 8</div>
+        <strong>Verbal Commitments Are Scope Debt</strong>
+        <p>Anything promised to a customer by Sales, KAM, or SA that is not in the SOW is uncontracted scope debt. It must be surfaced immediately, logged, and resolved via CR or SOW amendment.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- METRICS -->
+  <section id="metrics">
+    <h2>Accountability Metrics</h2>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:20px">Track these to make the process auditable and improve estimation over time. Review monthly at PMO level.</p>
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-label">Pre-SOW SW/Controls Review Rate</div>
+        <div class="metric-value">—</div>
+        <div class="metric-sub">% opportunities with SW+Controls review before SOW<br><span style="color:var(--green)">Target: 100%</span></div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Days to Technical Gate</div>
+        <div class="metric-value">—</div>
+        <div class="metric-sub">Avg days from opportunity creation to feasibility gate<br><span style="color:var(--green)">Target: &lt;10 days</span></div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Named PM/TPM at Intake</div>
+        <div class="metric-value">—</div>
+        <div class="metric-sub">% projects with named PM+TPM pair at T₀<br><span style="color:var(--green)">Target: 100%</span></div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Post-SOW CR Rate</div>
+        <div class="metric-value">—</div>
+        <div class="metric-sub">% projects with ≥1 change request post-SOW<br><span style="color:var(--yellow)">Track trend, not just total</span></div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">SW Estimate Variance</div>
+        <div class="metric-value">—</div>
+        <div class="metric-sub">Actual vs. LOE by archetype (hrs)<br><span style="color:var(--green)">Target: &lt;±20% on Upgrades</span></div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Controls Estimate Variance</div>
+        <div class="metric-value">—</div>
+        <div class="metric-sub">Actual vs. LOE by archetype (hrs)<br><span style="color:var(--green)">Target: &lt;±20% on Upgrades</span></div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Go-Live On-Date Rate</div>
+        <div class="metric-value">—</div>
+        <div class="metric-sub">% projects hitting original customer go-live date<br><span style="color:var(--green)">Target: &gt;80%</span></div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">P1 Defects at Site Readiness</div>
+        <div class="metric-value">—</div>
+        <div class="metric-sub">Avg P1 open items at FAT/SAT gate<br><span style="color:var(--green)">Target: 0</span></div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="footer-rule">
+  <p style="color:var(--muted);font-size:12px;text-align:center">Software + Hardware Project Lifecycle Pack · Internal Use · Version 1.0 · Iterate as the org matures</p>
+
+</div>
+</body>
+</html>
