@@ -202,6 +202,17 @@
       </div>
     </a>
 
+    <a class="doc-card green" href="form-closeout-retro.html">
+      <div class="card-icon green">🏁</div>
+      <div class="card-type green">Closeout Form</div>
+      <h2>Closeout &amp; Retrospective</h2>
+      <p>Required at Stage 10 for every project. Captures delivery outcomes vs. plan, gate and loop history, what worked and what didn't, metrics, and action items with owners. Completed by the PM with SW and Controls sign-off.</p>
+      <div class="card-footer">
+        <span class="card-tag">Stage 10 — Every Project</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
   </div>
 
   <!-- REFERENCE DOCS -->
@@ -241,6 +252,28 @@
       </div>
     </a>
 
+    <a class="doc-card orange" href="swimlane.html">
+      <div class="card-icon orange">🏊</div>
+      <div class="card-type orange">Diagram</div>
+      <h2>Swimlane Diagram</h2>
+      <p>Role ownership across all 10 stages in one view — who owns, contributes, is consulted, or is informed at each stage. Gates and reconciliation loops marked. Use this to settle "whose job is this" in one glance.</p>
+      <div class="card-footer">
+        <span class="card-tag">All Roles, All Stages</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <a class="doc-card purple" href="raci.html">
+      <div class="card-icon purple">🗂️</div>
+      <div class="card-type purple">Reference</div>
+      <h2>RACI Matrix</h2>
+      <p>Standalone interactive RACI — click a role to trace its accountability across every stage, filter by accountable role, and print it for the wall. Same content as the governance pack, easier to interrogate.</p>
+      <div class="card-footer">
+        <span class="card-tag">Interactive</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
   </div>
 
   <!-- USAGE RULES -->
@@ -253,14 +286,14 @@
       <li><strong>Gate 3 (Site Readiness) must pass before any travel is approved.</strong> SW + Controls confirm readiness. PM confirms customer site.</li>
       <li><strong>All customizations require a Change Request</strong> before work begins. Verbal requests are not work orders. No CR = no work.</li>
       <li><strong>Gate bypasses require leadership approval</strong> — named approver, documented exception, risk ownership assigned.</li>
-      <li><strong>All forms submit via email.</strong> Update the <code>to</code> email address in each form before deploying. Replace <code>your-team@yourcompany.com</code>.</li>
+      <li><strong>All forms submit via email</strong> to the process owner (<code>mike.vanbibber@elementlogic.net</code>). Submitting opens your email client with the form contents pre-filled — review and hit send.</li>
     </ul>
   </div>
 
   <!-- CONFIG NOTE -->
   <div class="section-title">Setup</div>
   <div class="config">
-    <strong>To configure email submission:</strong> Open each form file and find the line <code>const to = 'your-team@yourcompany.com';</code> near the bottom of the file. Replace it with your team's actual email address. Each form will email its data to that address when submitted.<br><br>
+    <strong>Email submission:</strong> Forms submit to <code>mike.vanbibber@elementlogic.net</code>. To change the destination, open each form file and edit the <code>const to = '...';</code> line near the bottom.<br><br>
     <strong>To host these forms:</strong> All files are self-contained HTML — no backend required. Upload the folder to any static hosting service (SharePoint, internal intranet, GitHub Pages, Azure Static Web Apps, Netlify, etc.). All links between documents use relative paths and will work as long as the files stay in the same folder.
   </div>
 

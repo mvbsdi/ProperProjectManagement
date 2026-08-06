@@ -95,6 +95,31 @@
   .notice { background: #1c0a0a; border: 1px solid #7f1d1d; border-radius: 8px; padding: 14px 18px; font-size: 13px; color: #fca5a5; line-height: 1.5; margin-bottom: 20px; }
   .notice strong { color: var(--text); }
 
+  .blocker-error { display: none; background: #1c0a0a; border: 1px solid #7f1d1d; border-radius: 8px; padding: 12px 14px; font-size: 13px; color: #fca5a5; line-height: 1.5; margin-top: 12px; }
+  .blocker-error strong { color: var(--text); }
+  .blocker-error ul { margin: 8px 0 0 18px; }
+  .blocker-error.show { display: block; }
+  .check-item.blocker.unmet { border-color: var(--red); background: #1c0a0a; box-shadow: 0 0 0 1px rgba(239, 68, 68, .25); }
+  .check-item.blocker.unmet .check-label { color: #fecaca; }
+
+
+  @media print {
+    @page { margin: .5in; }
+    body { background: white; color: #111827; min-height: auto; padding: 0; }
+    .page-header { background: white; border-bottom: 1px solid #111827; padding: 0 0 16px; margin-bottom: 18px; }
+    .page-header .brand, .page-header .doc-id, label, .hint, .check-item .check-desc { color: #475569; }
+    .page-header h1, .section-header h2, .notice strong, .check-item .check-label { color: #111827; }
+    .container { max-width: none; padding: 0; }
+    .section { background: white; border: 1px solid #94a3b8; break-inside: avoid; page-break-inside: avoid; margin-bottom: 18px; overflow: visible; }
+    .section-header { background: #f1f5f9; border-bottom: 1px solid #94a3b8; }
+    .section-header .num { color: white; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    .section-body { padding: 18px; }
+    input[type="text"], input[type="date"], select, textarea { background: white; border: 1px solid #475569; color: #111827; }
+    .sig-block, .notice, .check-item, .outcome-btn { background: white; border-color: #94a3b8; color: #111827; }
+    .blocker-tag { background: white; color: #991b1b; border-color: #991b1b; }
+    .submit-row, .btn, .gate-tabs, .gate-selector-label { display: none !important; }
+  }
+
   @media (max-width: 640px) {
     .field-grid, .sig-row { grid-template-columns: 1fr; }
     .gate-tabs { flex-direction: column; }
@@ -147,7 +172,7 @@
     </div>
 
     <!-- GATE SELECTOR -->
-    <div style="margin-bottom: 8px; font-size: 13px; font-weight: 600; color: var(--muted2);">Select Gate</div>
+    <div class="gate-selector-label" style="margin-bottom: 8px; font-size: 13px; font-weight: 600; color: var(--muted2);">Select Gate</div>
     <div class="gate-tabs">
       <div class="gate-tab active" onclick="selectGate(1, this)">Gate 1 — SOW Freeze</div>
       <div class="gate-tab" onclick="selectGate(2, this)">Gate 2 — Design Freeze</div>
@@ -360,6 +385,7 @@
               <input type="radio" name="gate_outcome" value="CONDITIONAL"> ⚠ CONDITIONAL — Proceed with documented exceptions.
             </label>
           </div>
+          <div class="blocker-error" id="blocker-error" role="status" aria-live="polite"></div>
         </div>
         <div class="field">
           <label>Exception / Conditional Bypass Justification</label>
@@ -403,20 +429,62 @@
   document.getElementById('doc-id').textContent = gateId;
   document.getElementById('gate_date').value = new Date().toISOString().slice(0,10);
 
+  const gateNames = { '1': 'SOW Freeze', '2': 'Design Freeze', '3': 'Site Readiness' };
+
   function selectGate(n, el) {
     document.querySelectorAll('.gate-tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.gate-panel').forEach(p => p.classList.remove('active'));
     el.classList.add('active');
     document.getElementById('gate-' + n).classList.add('active');
     document.getElementById('gate_number').value = n;
+    updateBlockerValidation();
   }
+
+  function getActiveGateBlockers() {
+    const gn = document.getElementById('gate_number').value;
+    const panel = document.getElementById('gate-' + gn);
+    return Array.from(panel.querySelectorAll('.check-item.blocker'));
+  }
+
+  function getBlockerLabel(item) {
+    return item.querySelector('.check-label').textContent.replace(/\s*Blocker\s*$/, '').trim();
+  }
+
+  function updateBlockerValidation() {
+    const error = document.getElementById('blocker-error');
+    const outcome = document.querySelector('input[name="gate_outcome"]:checked');
+    const unmet = getActiveGateBlockers().filter(item => !item.querySelector('input[type="checkbox"]').checked);
+
+    document.querySelectorAll('.check-item.blocker.unmet').forEach(item => item.classList.remove('unmet'));
+
+    if (outcome && outcome.value === 'PASS' && unmet.length) {
+      const gn = document.getElementById('gate_number').value;
+      const noun = unmet.length === 1 ? 'blocker remains' : 'blockers remain';
+      unmet.forEach(item => item.classList.add('unmet'));
+      error.innerHTML = '<strong>PASS blocked:</strong> ' + unmet.length + ' required ' + noun + ' unchecked for Gate ' + gn + ' — ' + (gateNames[gn] || '') + '. Check all blocker items before submitting PASS.<ul>' + unmet.map(item => '<li>' + getBlockerLabel(item) + '</li>').join('') + '</ul>';
+      error.classList.add('show');
+      return false;
+    }
+
+    error.textContent = '';
+    error.classList.remove('show');
+    return true;
+  }
+
+  document.querySelectorAll('.check-item.blocker input[type="checkbox"], input[name="gate_outcome"]').forEach(input => {
+    input.addEventListener('change', updateBlockerValidation);
+  });
 
   document.getElementById('gate-form').addEventListener('submit', function(e) {
     e.preventDefault();
     const data = new FormData(this);
-    const to = 'your-team@yourcompany.com'; // ← REPLACE
+    const to = 'mike.vanbibber@elementlogic.net';
     const gn = data.get('gate_number');
-    const gateNames = { '1': 'SOW Freeze', '2': 'Design Freeze', '3': 'Site Readiness' };
+
+    if (!updateBlockerValidation()) {
+      document.getElementById('blocker-error').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
 
     const checkboxes = (prefix) => {
       const items = [];

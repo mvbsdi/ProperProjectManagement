@@ -84,7 +84,10 @@ All files live in this repo. They are static HTML — no backend, no framework, 
 | `forms-index.html` | **Hub page** — start here. Links all documents. Shows the process flow. |
 | `form-project-intake.html` | Project Intake Form (Stage 4, Gate 1). 6 sections. Mailto submit. Auto-generates INT-YYYY-XXXX doc ID. |
 | `form-change-request.html` | Change Request Form. Impact matrix, effort estimate, 3-party approval. Auto-generates CR-YYYY-XXXX doc ID. |
-| `form-gate-checklist.html` | Gate Sign-Off Checklist — tabbed Gates 1/2/3. Blocker items flagged. PASS/FAIL/CONDITIONAL outcome. Auto-generates GATE-YYYY-XXXX doc ID. |
+| `form-gate-checklist.html` | Gate Sign-Off Checklist — tabbed Gates 1/2/3. Blocker items flagged. PASS/FAIL/CONDITIONAL outcome. **PASS is blocked (inline error + row highlighting) until every blocker for the active gate is checked.** Auto-generates GATE-YYYY-XXXX doc ID. |
+| `form-closeout-retro.html` | Project Closeout & Retrospective Form (Stage 10). Delivery outcomes, gate/loop history, keep/stop/start retro, metrics, action items, 3-party sign-off. Auto-generates RETRO-YYYY-XXXX doc ID. |
+| `swimlane.html` | Swimlane diagram — CSS-grid, six role lanes × 10 stage columns with ownership intensity, Gates 1/2/3 marked, loop strip for Loops A–D. |
+| `raci.html` | Standalone interactive RACI matrix — role highlighting, per-role accountability filters, legend, print styles. Content consistent with the governance pack. |
 | `project-lifecycle-exec.html` | **Executive working session deck** — 20 slides, engineering voice, keyboard nav. Built for a principal engineer presenting to leadership to "right the ship." Sections: DIAGNOSIS → FRAMEWORK → GOVERNANCE → ASK. Closes with 4 formal asks. |
 | `project-lifecycle-slides.html` | **Team deck** — 27 slides, spoon-fed one idea per screen. For rolling out process to people who have never had formal process. |
 | `project-lifecycle-pack.html` | **Dense reference doc** — full RACI, all gate checklists, all rules, all metrics. Single-page, dark theme. For people who want the whole picture. |
@@ -93,14 +96,15 @@ All files live in this repo. They are static HTML — no backend, no framework, 
 
 ## Known To-Dos / Next Iterations
 
-- [ ] **Replace placeholder email** in all 3 forms: search for `your-team@yourcompany.com` and replace with actual team distribution list
-- [ ] **Blocker enforcement** in gate checklist: JS currently shows blocker items visually but does not prevent submitting PASS if blockers are unchecked — could add validation
-- [ ] **Closeout / Retrospective form** (Stage 10) — not yet built
-- [ ] **Swimlane diagram** showing role ownership across all 10 stages — user mentioned interest
-- [ ] **Print/PDF CSS** (`@media print`) on all forms for paper distribution
+Cleared 2026-08-06: placeholder email replaced (all forms submit to `mike.vanbibber@elementlogic.net`), blocker enforcement added to the gate checklist, closeout/retro form built, swimlane diagram built, print CSS added to all forms, standalone RACI page built.
+
+Remaining:
 - [ ] **Real form backend** when moving off mailto: — user would like to host this eventually (SharePoint, Azure, etc.)
 - [ ] **Branding** — currently no company logo or color scheme. User may want to customize.
-- [ ] **RACI standalone page** — the RACI is embedded in the pack; could be its own interactive page
+
+## Hosting
+
+Live on the user's portal LB at `https://vanbibber.elws.elementlogic.io/ppm/` — a **public** (no-login) static route on the portal gateway (`~/gateway` on his remote box; the rest of the portal is password-gated). To redeploy after changes: `cp ~/projects/ProperProjectManagement/*.html ~/deployments/ppm/` — no restart needed.
 
 ---
 

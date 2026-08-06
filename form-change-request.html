@@ -87,6 +87,23 @@
   .impact-cell { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
   .impact-cell label { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); display: block; margin-bottom: 8px; font-weight: 600; }
 
+
+  @media print {
+    @page { margin: .5in; }
+    body { background: white; color: #111827; min-height: auto; padding: 0; }
+    .page-header { background: white; border-bottom: 1px solid #111827; padding: 0 0 16px; margin-bottom: 18px; }
+    .page-header .brand, .page-header .doc-id, label, .hint { color: #475569; }
+    .page-header h1, .section-header h2, .notice strong, .warning strong { color: #111827; }
+    .container { max-width: none; padding: 0; }
+    .section { background: white; border: 1px solid #94a3b8; break-inside: avoid; page-break-inside: avoid; margin-bottom: 18px; overflow: visible; }
+    .section-header { background: #f1f5f9; border-bottom: 1px solid #94a3b8; }
+    .section-header .num { color: white; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    .section-body { padding: 18px; }
+    input[type="text"], input[type="email"], input[type="date"], select, textarea { background: white; border: 1px solid #475569; color: #111827; }
+    .radio-group label, .check-group label, .sig-block, .notice, .warning, .impact-cell { background: white; border-color: #94a3b8; color: #111827; }
+    .submit-row, .btn { display: none !important; }
+  }
+
   @media (max-width: 640px) {
     .field-grid, .field-grid.triple, .sig-row, .impact-grid { grid-template-columns: 1fr; }
     .page-header { flex-direction: column; align-items: flex-start; gap: 6px; }
@@ -339,7 +356,7 @@
   document.getElementById('cr-form').addEventListener('submit', function(e) {
     e.preventDefault();
     const data = new FormData(this);
-    const to = 'your-team@yourcompany.com'; // ← REPLACE
+    const to = 'mike.vanbibber@elementlogic.net';
 
     const lines = [
       '=== CHANGE REQUEST ===',
