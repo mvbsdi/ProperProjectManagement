@@ -11,6 +11,7 @@ Built to solve one problem: **software and controls teams are always the last to
 | File | Description |
 |------|-------------|
 | [`forms-index.html`](forms-index.html) | **Start here** — Document hub, process flow overview, links all artifacts |
+| [`tracker.html`](tracker.html) | **Active Projects tracker** — live inventory of every effort, stage/gate status, one-click resume and gate advancement. Persists via the portal's `/ppm/api/projects` API to the private git-backed store `mvbsdi/ppm-projects`. |
 | [`form-project-intake.html`](form-project-intake.html) | Project Intake Form (Gate 1) |
 | [`form-change-request.html`](form-change-request.html) | Change Request Form |
 | [`form-gate-checklist.html`](form-gate-checklist.html) | Gate Sign-Off Checklist (Gates 1, 2, 3) — PASS blocked until all blocker items check out |

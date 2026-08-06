@@ -90,8 +90,8 @@
   .doc-card.purple .card-arrow { color: var(--purple); }
 
   /* PROCESS FLOW */
-  .flow { display: flex; flex-wrap: wrap; gap: 0; margin-bottom: 48px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-  .flow-step { flex: 1; min-width: 160px; padding: 18px 20px; border-right: 1px solid var(--border); position: relative; }
+  .flow { display: flex; flex-wrap: nowrap; gap: 0; margin-bottom: 48px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .flow-step { flex: 1 1 0; min-width: 0; padding: 18px 14px; border-right: 1px solid var(--border); position: relative; }
   .flow-step:last-child { border-right: none; }
   .flow-step .step-n { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
   .flow-step .step-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
@@ -112,11 +112,13 @@
   .config code { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; font-family: monospace; color: var(--accent); font-size: 12px; }
   .config strong { color: var(--text); }
 
-  @media (max-width: 640px) {
-    .header { padding: 24px; }
+  @media (max-width: 900px) {
     .flow { flex-direction: column; }
     .flow-step { border-right: none; border-bottom: 1px solid var(--border); }
     .flow-step:last-child { border-bottom: none; }
+  }
+  @media (max-width: 640px) {
+    .header { padding: 24px; }
   }
 </style>
 </head>
@@ -168,6 +170,17 @@
   <!-- FORMS -->
   <div class="section-title">Operational Forms</div>
   <div class="doc-grid">
+
+    <a class="doc-card green" href="tracker.html">
+      <div class="card-icon green">📋</div>
+      <div class="card-type green">Live Tracker</div>
+      <h2>Active Projects</h2>
+      <p>The live inventory of every project in flight — current stage, gate status, owners, and exactly one next action. Resume any effort where it left off. Every change is saved to a git-backed store.</p>
+      <div class="card-footer">
+        <span class="card-tag">Start / Resume Here</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
 
     <a class="doc-card" href="form-project-intake.html">
       <div class="card-icon blue">📥</div>
