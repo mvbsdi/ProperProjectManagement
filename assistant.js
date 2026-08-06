@@ -198,6 +198,9 @@
     '.tw-menu button{text-align:left;background:#0b0d13;border:1px solid #252a3d;border-radius:8px;color:#f1f5f9;font-size:13px;padding:9px 12px;cursor:pointer;font-family:inherit}' +
     '.tw-menu button:hover{border-color:#3b82f6}' +
     '.tw-menu button small{display:block;color:#64748b;font-size:11px;margin-top:2px}' +
+    '.tw-fb textarea,.tw-fb input{width:100%;box-sizing:border-box;background:#0b0d13;border:1px solid #252a3d;border-radius:8px;color:#f1f5f9;font-size:13px;font-family:inherit;padding:8px 10px;margin-top:8px}' +
+    '.tw-fb textarea{min-height:84px;resize:vertical}' +
+    '.tw-fb textarea:focus,.tw-fb input:focus{outline:none;border-color:#3b82f6}' +
     '.tw-foot{margin-top:10px;padding-top:8px;border-top:1px solid #252a3d;display:flex;gap:12px;font-size:11px;flex-wrap:wrap}' +
     '.tw-foot a{color:#64748b;cursor:pointer;text-decoration:none}' +
     '.tw-foot a:hover{color:#94a3b8;text-decoration:underline}' +
@@ -300,6 +303,8 @@
     if (a === 'onboard') { startTour(); return; }
     if (a === 'walk') { walk(0); return; }
     if (a === 'start') { whereToStart(); return; }
+    if (a === 'feedback') { feedbackForm(); return; }
+    if (a === 'fb-send') { feedbackSend(); return; }
     if (a === 'quiet') { unspot(); markSeen(); bubble.style.display = 'none'; return; }
     if (a === 'tour-quit') { setState({ tour: null }); menu(); return; }
     if (a === 'tour-later') { try { sessionStorage.setItem('tw_tour_snooze', '1'); } catch (e) {} unspot(); bubble.style.display = 'none'; return; }
@@ -327,6 +332,7 @@
       '<small>' + (t ? 'Pick up the tour where you left off.' : 'A short guided tour of the docs — why this exists, then how to use it.') + '</small></button>' +
       (hasWalk ? '<button data-a="walk"><b>Walk me through this page</b><small>Step-by-step, with the important parts highlighted.</small></button>' : '') +
       '<button data-a="start"><b>Where do I start?</b><small>Points you at the right document for your role.</small></button>' +
+      '<button data-a="feedback"><b>Give feedback</b><small>Confusing? Broken? Brilliant? Tell Mike \u2014 it goes straight to him.</small></button>' +
       '<button data-a="hide"><b>Hide for now</b><small>I\u2019ll wait behind the "need a hand?" tab.</small></button>' +
       '</div>';
     say('<b>What do you need?</b>' + m, '', {});
@@ -339,6 +345,46 @@
     var spotted = isHub && spot('a.doc-card[href="' + r[1] + '"]');
     say('<b>' + r[0] + ':</b> ' + r[2] + (spotted ? '<br><br>That\u2019s the one lit up.' : ''),
       '<div class="tw-btns"><a class="tw-primary" href="' + r[1] + '">Take me there \u2192</a><button data-a="menu">\u2190 back</button></div>');
+  }
+
+  /* --------------------------------------------------------------- feedback */
+  function feedbackForm(msg) {
+    lastSay = function () { feedbackForm(); };
+    unspot();
+    var who = '';
+    try { who = localStorage.getItem('ppm_user') || ''; } catch (e) {}
+    say('<b>Tell Mike what you think.</b> What\u2019s confusing, broken, missing \u2014 or working? ' +
+      'It\u2019s saved with the page you\u2019re on (' + page + ') so he has context.' +
+      '<div class="tw-fb">' +
+      '<textarea id="tw-fb-msg" placeholder="Say it plainly \u2014 no need to be polite about it."></textarea>' +
+      '<input id="tw-fb-name" placeholder="Your name (optional)" value="' + who.replace(/"/g, '&quot;').replace(/</g, '&lt;') + '">' +
+      '</div>' + (msg || ''),
+      '<div class="tw-btns"><button class="tw-primary" data-a="fb-send">Send it</button><button data-a="menu">\u2190 back</button></div>');
+    var ta = bubble.querySelector('#tw-fb-msg');
+    if (ta && fbDraft) ta.value = fbDraft;
+    if (ta) ta.focus();
+  }
+
+  var fbDraft = '';
+  function feedbackSend() {
+    var ta = bubble.querySelector('#tw-fb-msg'), nm = bubble.querySelector('#tw-fb-name');
+    var text = ta ? ta.value.trim() : '';
+    fbDraft = text;
+    if (!text) { feedbackForm('<small style="color:#f87171">Write something first \u2014 even one sentence helps.</small>'); return; }
+    var btn = bubble.querySelector('[data-a="fb-send"]');
+    if (btn) { btn.disabled = true; btn.textContent = 'Sending\u2026'; }
+    fetch('api/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ page: page, role: state().role || '', name: nm ? nm.value.trim() : '', message: text })
+    }).then(function (r) {
+      if (!r.ok) throw new Error(r.status);
+      fbDraft = '';
+      say('<b>Sent \u2014 thanks.</b> Mike reads every one of these. If it needs a reply, put your name on the next one so he knows who to find.',
+        '<div class="tw-btns"><button data-a="quiet">Done</button><button data-a="menu">\u2190 menu</button></div>');
+    }).catch(function () {
+      feedbackForm('<small style="color:#f87171">Couldn\u2019t send just now \u2014 your text is still here, try again in a minute.</small>');
+    });
   }
 
   /* ------------------------------------------------------------- first visit */
