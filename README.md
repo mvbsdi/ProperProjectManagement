@@ -25,7 +25,7 @@ Built to solve one problem: **software and controls teams are always the last to
 
 ## Usage
 
-Open `forms-index.html` in a browser. All files are self-contained static HTML — no build step, no server required. Host together in the same folder on any static host (GitHub Pages, SharePoint, intranet, Netlify, etc.). All forms print cleanly to paper/PDF via the browser's print dialog.
+Open `forms-index.html` in a browser. First-time visitors get **Timmy the Tote** (or Robert the Robo-Arm), a corner assistant that asks your role and points you at the right starting document — dismissible, remembers your choice. All files are self-contained static HTML — no build step, no server required. Host together in the same folder on any static host (GitHub Pages, SharePoint, intranet, Netlify, etc.). All forms print cleanly to paper/PDF via the browser's print dialog.
 
 ## To Customize
 

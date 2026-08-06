@@ -79,5 +79,6 @@ document.querySelectorAll('tbody tr:not(.group)').forEach(tr=>tr.addEventListene
 document.querySelectorAll('.filters button[data-role]').forEach(btn=>btn.addEventListener('click',()=>{clearState();btn.classList.add('active');const role=btn.dataset.role;const value=btn.dataset.value;document.querySelectorAll('tbody tr:not(.group)').forEach(tr=>{const td=tr.querySelector('td[data-role="'+role+'"]');if(td&&td.dataset.val.includes(value)){td.classList.add('match');}else{tr.classList.add('dim');}});document.querySelectorAll('th[data-role]').forEach(th=>{if(th.dataset.role!==role)th.classList.add('dimmed');});}));
 document.getElementById('reset').addEventListener('click',clearState);
 </script>
+<script defer src="assistant.js"></script>
 </body>
 </html>
