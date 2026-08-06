@@ -55,6 +55,9 @@
     ['Controls Engineer', 'tracker.html',
       'Start at the tracker — find your project. Controls signs Gate 1, 2 AND 3.',
       'No Gate 3 sign-off, no travel. Your name is on that line.'],
+    ['Support / Customer Service', 'swimlane.html',
+      'Start with the Swimlane — find the Support row. Short version: you\'re in the loop from Intake, your VPN gets requested at Intake, and your handoff must be COMPLETE at Gate 3 — not the week before go-live.',
+      'Watch stages 6–8 on your projects: Gate 2 is where your handoff plan starts, Gate 3 blocks until your handoff is done and your VPN works.'],
     ['Just looking around', 'forms-index.html',
       'The flow strip at the top of the hub is the whole process in one row — start there.',
       'Poke around. Everything links back to the Document Hub.']

@@ -188,7 +188,11 @@
     </div>
     <div class="two">
       <div><label>SA</label><input id="np-sa"></div>
+      <div><label>Support Lead</label><input id="np-support"></div>
+    </div>
+    <div class="two">
       <div><label>Starting stage</label><select id="np-stage"></select></div>
+      <div></div>
     </div>
     <div class="actions">
       <button class="btn ghost" onclick="closeNew()">Cancel</button>
@@ -400,6 +404,7 @@ function detail(p) {
             <div><b>Software Lead</b><input value="${esc(o.software)}" onchange="setOwner('${p.id}','software',this.value)"></div>
             <div><b>Controls Lead</b><input value="${esc(o.controls)}" onchange="setOwner('${p.id}','controls',this.value)"></div>
             <div><b>SA</b><input value="${esc(o.sa)}" onchange="setOwner('${p.id}','sa',this.value)"></div>
+            <div><b>Support Lead</b><input value="${esc(o.support)}" onchange="setOwner('${p.id}','support',this.value)"></div>
             <div><b>Intake doc ID</b><input value="${esc(d.intake)}" placeholder="INT-2026-…" onchange="setDoc('${p.id}','intake',this.value)"></div>
           </div>
           <b>Notes</b><textarea onchange="setField('${p.id}','notes',this.value)">${esc(p.notes)}</textarea>
@@ -508,7 +513,8 @@ async function createProject() {
     type: $('np-type').value, status: 'active',
     stage: parseInt($('np-stage').value, 10) || 1,
     owners: { pm: $('np-pm').value.trim(), tpm: $('np-tpm').value.trim(), sa: $('np-sa').value.trim(),
-              software: $('np-sw').value.trim(), controls: $('np-controls').value.trim() },
+              software: $('np-sw').value.trim(), controls: $('np-controls').value.trim(),
+              support: $('np-support').value.trim() },
     docRefs: { intake: '', crs: [], gates: [] },
     gateResults: [], notes: '',
     created: new Date().toISOString(),
@@ -516,7 +522,7 @@ async function createProject() {
   };
   doc.projects.push(p);
   closeNew();
-  ['np-name', 'np-customer', 'np-pm', 'np-tpm', 'np-sa', 'np-sw', 'np-controls'].forEach(i => $(i).value = '');
+  ['np-name', 'np-customer', 'np-pm', 'np-tpm', 'np-sa', 'np-sw', 'np-controls', 'np-support'].forEach(i => $(i).value = '');
   openId = p.id;
   render();
   await save();

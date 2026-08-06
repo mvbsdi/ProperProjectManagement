@@ -292,8 +292,12 @@
             <label>Controls Lead <span class="req">*</span></label>
             <input type="text" name="controls_lead" placeholder="Full name">
           </div>
+          <div class="field">
+            <label>Support Lead</label>
+            <input type="text" name="support_lead" placeholder="Full name or TBD">
+          </div>
         </div>
-        <div class="hint" style="margin-top: 4px;">One named individual per role. If a role is unfilled, note "TBD" and flag for immediate resolution — no project proceeds without a named TPM, SW Lead, and Controls Lead.</div>
+        <div class="hint" style="margin-top: 4px;">One named individual per role. If Support is named later, keep the slot visible as "TBD". No project proceeds without a named TPM, SW Lead, and Controls Lead.</div>
       </div>
     </div>
 
@@ -394,9 +398,43 @@
       </div>
     </div>
 
-    <!-- SECTION 6: SIGN-OFF -->
+    <!-- SECTION 6: REMOTE ACCESS & VPN -->
     <div class="section">
-      <div class="section-header"><div class="num">6</div><h2>Intake Sign-Off</h2></div>
+      <div class="section-header"><div class="num">6</div><h2>Remote Access &amp; VPN</h2></div>
+      <div class="section-body">
+        <div class="field" style="margin-bottom: 18px;">
+          <label>Is a VPN / remote access required for this site?</label>
+          <div class="radio-group">
+            <label><input type="radio" name="vpn_required" value="Yes"> Yes</label>
+            <label><input type="radio" name="vpn_required" value="No"> No</label>
+            <label><input type="radio" name="vpn_required" value="Unknown"> Unknown</label>
+          </div>
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label>VPN request submitted?</label>
+            <select name="vpn_submitted">
+              <option value="">Select status</option>
+              <option>Yes</option>
+              <option>No</option>
+              <option>N/A</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Who owns VPN setup?</label>
+            <input type="text" name="vpn_owner" placeholder="Full name">
+          </div>
+        </div>
+        <div class="field" style="margin-top: 18px;">
+          <label>Expected Lead Time / Notes</label>
+          <textarea name="vpn_notes" rows="3" placeholder="VPN provisioning can take weeks. Request it at intake, not at go-live. Note customer IT owner, access path, and timing risks."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 7: SIGN-OFF -->
+    <div class="section">
+      <div class="section-header"><div class="num">7</div><h2>Intake Sign-Off</h2></div>
       <div class="section-body">
         <p style="font-size: 14px; color: var(--muted2); margin-bottom: 16px;">By signing below, each party confirms they have reviewed the intake information and that this project is ready to enter the pipeline with the resources and commitments noted above.</p>
         <div class="sig-row">
@@ -467,6 +505,7 @@
       'SA: ' + (data.get('sa') || ''),
       'Software Lead: ' + (data.get('sw_lead') || ''),
       'Controls Lead: ' + (data.get('controls_lead') || ''),
+      'Support Lead: ' + (data.get('support_lead') || ''),
       '',
       '--- SCOPE ---',
       'Scope: ' + (data.get('scope_description') || ''),
@@ -485,6 +524,12 @@
       'SA On-Site: ' + (data.get('sa_onsite') || ''),
       'SW Build Window: ' + (data.get('sw_window') || ''),
       'Schedule Constraints: ' + (data.get('schedule_constraints') || ''),
+      '',
+      '--- REMOTE ACCESS & VPN ---',
+      'VPN / Remote Access Required: ' + (data.get('vpn_required') || ''),
+      'VPN Request Submitted: ' + (data.get('vpn_submitted') || ''),
+      'VPN Setup Owner: ' + (data.get('vpn_owner') || ''),
+      'Expected Lead Time / Notes: ' + (data.get('vpn_notes') || ''),
       '',
       '--- SIGN-OFF ---',
       'TPM: ' + (data.get('sig_tpm_name') || '') + ' — ' + (data.get('sig_tpm_date') || ''),

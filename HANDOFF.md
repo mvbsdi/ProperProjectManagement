@@ -24,6 +24,7 @@ Software/Controls teams find out about new projects **the week FSD and HI docume
 | SA (Solution Architect) | On-site software configuration, customer-facing requirements gathering. Doubles as TPM on some projects. |
 | Software Dept | Customizations and configuration — the people who actually build |
 | Controls Team | PLC software, low-voltage integration |
+| Support / Customer Service | Owns the customer after go-live. Needs VPN/remote access (long lead time — requested at Intake), often travels to site during the low-voltage/commissioning phase to assist SA/SW/Controls, and must receive a COMPLETE handoff by Gate 3 — not the week before go-live. |
 
 **Key pain:** The TPM role is the weakest link. They sit on calls, supposedly capture requirements, and are supposed to relay to software — but in practice they're often absent or ineffective.
 

@@ -233,6 +233,7 @@
             <span class="stage-sw">TPM (single DRI)</span>
             <span class="stage-sw">SA</span>
             <span class="stage-sw">KAM</span>
+            <span class="stage-sw">Support / CS named; VPN request starts</span>
           </div>
           <div class="stage-gate"><strong>EXIT GATE:</strong> Named PM + TPM pair on file. Intake checklist complete. No unnamed PM/TPM = project cannot start scheduling.</div>
         </div>
@@ -273,6 +274,7 @@
             <span class="stage-sw highlight">⚡ Controls: named staff, PLC dev plan</span>
             <span class="stage-sw">TPM (software schedule owner)</span>
             <span class="stage-sw">PM (master schedule)</span>
+            <span class="stage-sw">Support / CS (handoff plan starts)</span>
           </div>
           <div class="stage-gate"><strong>EXIT GATE:</strong> Named staff plan approved by Software Engineering Manager. Hardware dependency map acknowledged. No named staff = no build start.</div>
         </div>
@@ -295,6 +297,7 @@
             <span class="stage-sw">TPM (dependency &amp; CR owner)</span>
             <span class="stage-sw">SA (config support)</span>
             <span class="stage-sw">PM (timeline &amp; hardware)</span>
+            <span class="stage-sw">Support / CS (site assist)</span>
           </div>
           <div class="stage-gate"><strong>EXIT GATE:</strong> All FSD acceptance criteria met. Interface test matrix pass. Outstanding items documented in punch list with severity tags. No untested interfaces advance to site.</div>
         </div>
@@ -314,8 +317,9 @@
             <span class="stage-sw highlight">⚡ Controls: signs site readiness; leads PLC commissioning</span>
             <span class="stage-sw">SA (on-site lead)</span>
             <span class="stage-sw">PM (logistics &amp; schedule)</span>
+            <span class="stage-sw highlight">⚡ Support / CS: handoff complete; VPN verified</span>
           </div>
-          <div class="stage-gate"><strong>EXIT GATE:</strong> FAT/SAT checklist passed. Software + Controls sign readiness. Customer sign-off on commissioning scope.</div>
+          <div class="stage-gate"><strong>EXIT GATE:</strong> FAT/SAT checklist passed. Software + Controls sign readiness. Support handoff complete. VPN verified. Customer sign-off on commissioning scope.</div>
         </div>
       </div>
 
@@ -333,6 +337,7 @@
             <span class="stage-sw highlight">⚡ Controls: hypercare rota</span>
             <span class="stage-sw">PM (cutover owner)</span>
             <span class="stage-sw">KAM / Customer Success</span>
+            <span class="stage-sw highlight">⚡ Support / CS: hypercare front line</span>
           </div>
           <div class="stage-gate"><strong>EXIT GATE:</strong> Go-live criteria checklist passed. Change backlog triaged. Hypercare rota named and communicated to customer.</div>
         </div>
@@ -353,6 +358,7 @@
             <span class="stage-sw">PMO (aggregate + report)</span>
             <span class="stage-sw">TPM</span>
             <span class="stage-sw">PM</span>
+            <span class="stage-sw highlight">⚡ Support / CS: owns customer</span>
           </div>
           <div class="stage-gate"><strong>EXIT GATE:</strong> Closeout report filed. Variance data entered in estimation database. Project formally closed in system.</div>
         </div>
@@ -418,33 +424,37 @@
             <th>SA</th>
             <th>Software Lead</th>
             <th>Controls Lead</th>
+            <th>Support</th>
             <th>Eng. Manager</th>
           </tr>
         </thead>
         <tbody>
-          <tr><td colspan="8" style="background:var(--surface2);font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.8px;text-transform:uppercase">PRE-SOW</td></tr>
-          <tr><td>Opportunity qualification &amp; tiering</td><td class="a">A</td><td class="c">C</td><td class="c">C</td><td class="r">R</td><td class="c">C</td><td class="c">C</td><td class="i">I</td></tr>
-          <tr><td>Software LOE estimate (pre-SOW)</td><td class="i">I</td><td class="i">I</td><td class="c">C</td><td class="c">C</td><td class="a r">A/R</td><td class="c">C</td><td class="a">A</td></tr>
-          <tr><td>Controls LOE estimate (pre-SOW)</td><td class="i">I</td><td class="i">I</td><td class="c">C</td><td class="c">C</td><td class="c">C</td><td class="a r">A/R</td><td class="a">A</td></tr>
-          <tr><td>Technical Feasibility Sign-off</td><td class="i">I</td><td class="i">I</td><td class="c">C</td><td class="r">R</td><td class="a">A</td><td class="a">A</td><td class="c">C</td></tr>
-          <tr><td>SOW scope language review</td><td class="a">A</td><td class="r">R</td><td class="r">R</td><td class="c">C</td><td class="a">A</td><td class="a">A</td><td class="c">C</td></tr>
-          <tr><td colspan="8" style="background:var(--surface2);font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.8px;text-transform:uppercase">INTAKE &amp; REQUIREMENTS</td></tr>
-          <tr><td>Project intake &amp; kick-off meeting</td><td class="c">C</td><td class="a">A</td><td class="r">R</td><td class="r">R</td><td class="r">R</td><td class="r">R</td><td class="i">I</td></tr>
-          <tr><td>PM assignment (single DRI)</td><td class="i">I</td><td class="a r">A/R</td><td class="i">I</td><td class="i">I</td><td class="i">I</td><td class="i">I</td><td class="a">A</td></tr>
-          <tr><td>TPM assignment (single DRI)</td><td class="i">I</td><td class="i">I</td><td class="a r">A/R</td><td class="i">I</td><td class="i">I</td><td class="i">I</td><td class="a">A</td></tr>
-          <tr><td>FSD authoring</td><td class="i">I</td><td class="i">I</td><td class="a">A</td><td class="r">R</td><td class="r">R</td><td class="r">R</td><td class="c">C</td></tr>
-          <tr><td>HI document authoring</td><td class="i">I</td><td class="i">I</td><td class="a">A</td><td class="r">R</td><td class="c">C</td><td class="r">R</td><td class="c">C</td></tr>
-          <tr><td>FSD/HI customer approval</td><td class="c">C</td><td class="r">R</td><td class="a">A</td><td class="r">R</td><td class="c">C</td><td class="c">C</td><td class="i">I</td></tr>
-          <tr><td colspan="8" style="background:var(--surface2);font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.8px;text-transform:uppercase">BUILD &amp; DELIVERY</td></tr>
-          <tr><td>Software staffing &amp; scheduling</td><td class="i">I</td><td class="c">C</td><td class="r">R</td><td class="i">I</td><td class="c">C</td><td class="i">I</td><td class="a">A</td></tr>
-          <tr><td>Controls staffing &amp; scheduling</td><td class="i">I</td><td class="c">C</td><td class="r">R</td><td class="i">I</td><td class="i">I</td><td class="c">C</td><td class="a">A</td></tr>
-          <tr><td>Change request initiation</td><td class="c">C</td><td class="r">R</td><td class="a">A</td><td class="c">C</td><td class="c">C</td><td class="c">C</td><td class="c">C</td></tr>
-          <tr><td>Change request commercial decision</td><td class="a">A</td><td class="r">R</td><td class="c">C</td><td class="i">I</td><td class="i">I</td><td class="i">I</td><td class="i">I</td></tr>
-          <tr><td>Integration testing</td><td class="i">I</td><td class="i">I</td><td class="a">A</td><td class="c">C</td><td class="r">R</td><td class="r">R</td><td class="c">C</td></tr>
-          <tr><td>Site readiness sign-off</td><td class="i">I</td><td class="r">R</td><td class="a">A</td><td class="r">R</td><td class="a">A</td><td class="a">A</td><td class="c">C</td></tr>
-          <tr><td>Go-live authorization</td><td class="c">C</td><td class="a">A</td><td class="r">R</td><td class="r">R</td><td class="r">R</td><td class="r">R</td><td class="c">C</td></tr>
-          <tr><td>Hypercare rota &amp; defect triage</td><td class="i">I</td><td class="c">C</td><td class="a">A</td><td class="r">R</td><td class="r">R</td><td class="r">R</td><td class="c">C</td></tr>
-          <tr><td>Project closeout &amp; retrospective</td><td class="i">I</td><td class="r">R</td><td class="r">R</td><td class="c">C</td><td class="r">R</td><td class="r">R</td><td class="a">A</td></tr>
+          <tr><td colspan="9" style="background:var(--surface2);font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.8px;text-transform:uppercase">PRE-SOW</td></tr>
+          <tr><td>Opportunity qualification &amp; tiering</td><td class="a">A</td><td class="c">C</td><td class="c">C</td><td class="r">R</td><td class="c">C</td><td class="c">C</td><td class="i">I</td><td class="i">I</td></tr>
+          <tr><td>Software LOE estimate (pre-SOW)</td><td class="i">I</td><td class="i">I</td><td class="c">C</td><td class="c">C</td><td class="a r">A/R</td><td class="c">C</td><td class="i">I</td><td class="a">A</td></tr>
+          <tr><td>Controls LOE estimate (pre-SOW)</td><td class="i">I</td><td class="i">I</td><td class="c">C</td><td class="c">C</td><td class="c">C</td><td class="a r">A/R</td><td class="i">I</td><td class="a">A</td></tr>
+          <tr><td>Technical Feasibility Sign-off</td><td class="i">I</td><td class="i">I</td><td class="c">C</td><td class="r">R</td><td class="a">A</td><td class="a">A</td><td class="i">I</td><td class="c">C</td></tr>
+          <tr><td>SOW scope language review</td><td class="a">A</td><td class="r">R</td><td class="r">R</td><td class="c">C</td><td class="a">A</td><td class="a">A</td><td class="i">I</td><td class="c">C</td></tr>
+          <tr><td colspan="9" style="background:var(--surface2);font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.8px;text-transform:uppercase">INTAKE &amp; REQUIREMENTS</td></tr>
+          <tr><td>Project intake &amp; kick-off meeting</td><td class="c">C</td><td class="a">A</td><td class="r">R</td><td class="r">R</td><td class="r">R</td><td class="r">R</td><td class="i">I</td><td class="i">I</td></tr>
+          <tr><td>PM assignment (single DRI)</td><td class="i">I</td><td class="a r">A/R</td><td class="i">I</td><td class="i">I</td><td class="i">I</td><td class="i">I</td><td class="i">I</td><td class="a">A</td></tr>
+          <tr><td>TPM assignment (single DRI)</td><td class="i">I</td><td class="i">I</td><td class="a r">A/R</td><td class="i">I</td><td class="i">I</td><td class="i">I</td><td class="i">I</td><td class="a">A</td></tr>
+          <tr><td>FSD authoring</td><td class="i">I</td><td class="i">I</td><td class="a">A</td><td class="r">R</td><td class="r">R</td><td class="r">R</td><td class="c">C</td><td class="c">C</td></tr>
+          <tr><td>HI document authoring</td><td class="i">I</td><td class="i">I</td><td class="a">A</td><td class="r">R</td><td class="c">C</td><td class="r">R</td><td class="c">C</td><td class="c">C</td></tr>
+          <tr><td>FSD/HI customer approval</td><td class="c">C</td><td class="r">R</td><td class="a">A</td><td class="r">R</td><td class="c">C</td><td class="c">C</td><td class="c">C</td><td class="i">I</td></tr>
+          <tr><td colspan="9" style="background:var(--surface2);font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.8px;text-transform:uppercase">BUILD &amp; DELIVERY</td></tr>
+          <tr><td>Software staffing &amp; scheduling</td><td class="i">I</td><td class="c">C</td><td class="r">R</td><td class="i">I</td><td class="c">C</td><td class="i">I</td><td class="i">I</td><td class="a">A</td></tr>
+          <tr><td>Controls staffing &amp; scheduling</td><td class="i">I</td><td class="c">C</td><td class="r">R</td><td class="i">I</td><td class="i">I</td><td class="c">C</td><td class="i">I</td><td class="a">A</td></tr>
+          <tr><td>Change request initiation</td><td class="c">C</td><td class="r">R</td><td class="a">A</td><td class="c">C</td><td class="c">C</td><td class="c">C</td><td class="c">C</td><td class="c">C</td></tr>
+          <tr><td>Change request commercial decision</td><td class="a">A</td><td class="r">R</td><td class="c">C</td><td class="i">I</td><td class="i">I</td><td class="i">I</td><td class="i">I</td><td class="i">I</td></tr>
+          <tr><td>Integration testing</td><td class="i">I</td><td class="i">I</td><td class="a">A</td><td class="c">C</td><td class="r">R</td><td class="r">R</td><td class="c">C</td><td class="c">C</td></tr>
+          <tr><td>Support handoff package</td><td class="i">I</td><td class="c">C</td><td class="a">A</td><td class="c">C</td><td class="c">C</td><td class="c">C</td><td class="r">R</td><td class="i">I</td></tr>
+          <tr><td>VPN / remote access provisioning</td><td class="i">I</td><td class="a">A</td><td class="c">C</td><td class="i">I</td><td class="i">I</td><td class="c">C</td><td class="r">R</td><td class="i">I</td></tr>
+          <tr><td>Site readiness sign-off</td><td class="i">I</td><td class="r">R</td><td class="a">A</td><td class="r">R</td><td class="a">A</td><td class="a">A</td><td class="c">C</td><td class="c">C</td></tr>
+          <tr><td>Go-live authorization</td><td class="c">C</td><td class="a">A</td><td class="r">R</td><td class="r">R</td><td class="r">R</td><td class="r">R</td><td class="c">C</td><td class="c">C</td></tr>
+          <tr><td>Hypercare front line</td><td class="i">I</td><td class="c">C</td><td class="c">C</td><td class="c">C</td><td class="c">C</td><td class="c">C</td><td class="a r">A/R</td><td class="i">I</td></tr>
+          <tr><td>Hypercare rota &amp; defect triage</td><td class="i">I</td><td class="c">C</td><td class="a">A</td><td class="r">R</td><td class="r">R</td><td class="r">R</td><td class="r">R</td><td class="c">C</td></tr>
+          <tr><td>Project closeout &amp; retrospective</td><td class="i">I</td><td class="r">R</td><td class="r">R</td><td class="c">C</td><td class="r">R</td><td class="r">R</td><td class="a">A</td><td class="a">A</td></tr>
         </tbody>
       </table>
     </div>
@@ -493,6 +503,8 @@
           <li>Integration points and third-party dependencies scoped</li>
           <li>Commissioning and training scope defined</li>
           <li>PM named (or named at contract execution)</li>
+          <li>Support handoff plan started</li>
+          <li>VPN / remote access request submitted</li>
         </ul>
       </div>
 
@@ -544,6 +556,8 @@
           <li>Punch list generated with severity tags (P1/P2/P3)</li>
           <li>No P1 defects outstanding</li>
           <li>Site environment confirmed ready (network, hardware power, access)</li>
+          <li class="blocker">Support handoff complete</li>
+          <li class="blocker">VPN verified for Support</li>
           <li>Training plan confirmed</li>
           <li>Rollback/contingency plan documented</li>
         </ul>
@@ -583,6 +597,7 @@
           <li class="blocker">Controls Lead named — full name, capacity %</li>
           <li>SA assigned and briefed</li>
           <li>KAM / Customer Success owner identified</li>
+          <li>Support / CS owner identified</li>
           <li>Customer primary technical contact identified</li>
           <li>Customer primary commercial contact identified</li>
         </ul>
@@ -672,6 +687,11 @@
         <div class="rule-num">Rule 8</div>
         <strong>Verbal Commitments Are Scope Debt</strong>
         <p>Anything promised to a customer by Sales, KAM, or SA that is not in the SOW is uncontracted scope debt. It must be surfaced immediately, logged, and resolved via CR or SOW amendment.</p>
+      </div>
+      <div class="rule-card">
+        <div class="rule-num">Rule 9</div>
+        <strong>Support Handoff Is Complete at Gate 3</strong>
+        <p>The customer never meets their support team for the first time at go-live.</p>
       </div>
     </div>
   </section>
